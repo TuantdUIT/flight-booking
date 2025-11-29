@@ -1,12 +1,12 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useAuthStore, useBookingStore } from "@/src/core/lib/store"
-import { Navbar } from "@/src/core/components/layouts/navbar"
-import { PriceBreakdownCard } from "@/src/core/components/ui/price-breakdown-card"
-import { Button } from "@/src/core/components/ui/button"
-import { ErrorBanner } from "@/src/core/components/ui/error-banner"
-import { LoadingSpinner } from "@/src/core/components/ui/loading-spinner"
+import { useAuthStore, useBookingStore } from "@/core/lib/store"
+import { Navbar } from "@/core/components/layouts/navbar"
+import { PriceBreakdownCard } from "@/core/components/ui/price-breakdown-card"
+import { Button } from "@/core/components/ui/button"
+import { ErrorBanner } from "@/core/components/ui/error-banner"
+import { LoadingSpinner } from "@/core/components/ui/loading-spinner"
 import { ArrowLeft, Plane, Clock, User, Mail, Phone, FileText, Globe, Calendar, AlertTriangle } from "lucide-react"
 
 export default function SummaryPage() {

@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from "@/src/core/utils"
+import { cn } from "@/core/utils"
 import { Loader2 } from "lucide-react"
 
 interface LoadingSpinnerProps {

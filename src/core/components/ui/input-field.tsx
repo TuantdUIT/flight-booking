@@ -1,7 +1,7 @@
 "use client"
 
 import type * as React from "react"
-import { cn } from "@/src/core/utils"
+import { cn } from "@/core/utils"
 
 interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string

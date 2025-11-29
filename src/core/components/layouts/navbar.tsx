@@ -2,10 +2,10 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useAuthStore } from "@/src/core/lib/store"
-import { Button } from "@/src/core/components/ui/button"
+import { useAuthStore } from "@/core/lib/store"
+import { Button } from "@/core/components/ui/button"
 import { Plane, LogOut, Menu, X } from "lucide-react"
-import { cn } from "@/src/core/utils"
+import { cn } from "@/core/utils"
 import { useState } from "react"
 
 export function Navbar() {

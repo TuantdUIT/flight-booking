@@ -1,7 +1,7 @@
 "use client"
 
-import type { Flight } from "@/src/core/types"
-import { cn } from "@/src/core/utils"
+import type { Flight } from "@/core/types"
+import { cn } from "@/core/utils"
 
 interface PriceBreakdownCardProps {
   flight: Flight

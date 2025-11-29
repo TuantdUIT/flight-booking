@@ -1,23 +1,12 @@
 import { NextResponse } from 'next/server';
+import { bookingsService } from '@/features/bookings/services/bookings.service';
+import { createBookingSchema } from '@/features/bookings/validations/create-booking';
 
 export async function POST(request: Request) {
   try {
-    const { flightId, airlineId, passengers } = await request.json();
-
-    // NOTE: Add your booking creation logic here
-    console.log({ flightId, airlineId, passengers });
-
-    // NOTE: Replace with your actual booking data
-    const booking = {
-      pnr: 'XYZ123',
-      flightId,
-      airlineId,
-      passengers,
-      amountPaid: 500,
-      paymentStatus: 'pending',
-      bookingStatus: 'pending',
-    };
-
+    const body = await request.json();
+    const bookingData = createBookingSchema.parse(body);
+    const booking = await bookingsService.createBooking(bookingData);
     return NextResponse.json(booking);
   } catch (error) {
     console.error(error);

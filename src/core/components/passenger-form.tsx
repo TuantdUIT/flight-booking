@@ -1,8 +1,8 @@
 "use client"
-import { InputField } from "@/src/core/components/ui/input-field"
-import { DateInput } from "@/src/core/components/ui/date-input"
-import { SelectField } from "@/src/core/components/ui/select-field"
-import type { Passenger } from "@/src/core/types"
+import { InputField } from "@/core/components/ui/input-field"
+import { DateInput } from "@/core/components/ui/date-input"
+import { SelectField } from "@/core/components/ui/select-field"
+import type { Passenger } from "@/core/types"
 import { User, Mail, Phone, Globe, FileText } from "lucide-react"
 
 interface PassengerFormProps {

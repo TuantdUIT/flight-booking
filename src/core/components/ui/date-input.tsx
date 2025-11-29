@@ -1,7 +1,7 @@
 "use client"
 
 import type * as React from "react"
-import { cn } from "@/src/core/utils"
+import { cn } from "@/core/utils"
 import { Calendar } from "lucide-react"
 
 interface DateInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {

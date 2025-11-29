@@ -1,21 +1,13 @@
 import { NextResponse } from 'next/server';
+import { authService } from '@/features/auth/services/auth.service';
+import { loginSchema } from '@/features/auth/validations/login';
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
-
-    // NOTE: Add your authentication logic here
-    console.log({ email, password });
-
-    // NOTE: Replace with your actual token generation
-    const accessToken = 'sample-jwt-token';
-    const expiresIn = 3600;
-
-    return NextResponse.json({
-      accessToken,
-      tokenType: 'Bearer',
-      expiresIn,
-    });
+    const body = await request.json();
+    const credentials = loginSchema.parse(body);
+    const result = await authService.login(credentials);
+    return NextResponse.json(result);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });

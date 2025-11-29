@@ -1,6 +1,6 @@
 "use client"
 import { CheckCircle2, X } from "lucide-react"
-import { cn } from "@/src/core/utils"
+import { cn } from "@/core/utils"
 
 interface SuccessBannerProps {
   message: string

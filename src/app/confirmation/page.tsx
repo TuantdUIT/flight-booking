@@ -1,11 +1,11 @@
 "use client"
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuthStore, useBookingStore } from "@/src/core/lib/store"
-import { Navbar } from "@/src/core/components/layouts/navbar"
-import { Button } from "@/src/core/components/ui/button"
-import { SuccessBanner } from "@/src/core/components/ui/success-banner"
-import { LoadingSpinner } from "@/src/core/components/ui/loading-spinner"
+import { useAuthStore, useBookingStore } from "@/core/lib/store"
+import { Navbar } from "@/core/components/layouts/navbar"
+import { Button } from "@/core/components/ui/button"
+import { SuccessBanner } from "@/core/components/ui/success-banner"
+import { LoadingSpinner } from "@/core/components/ui/loading-spinner"
 import { CheckCircle2, Plane, Clock, User, Download, Home, Calendar, MapPin } from "lucide-react"
 
 export default function ConfirmationPage() {

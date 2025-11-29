@@ -1,9 +1,9 @@
 "use client"
 
-import type { Flight } from "@/src/core/types"
-import { cn } from "@/src/core/utils"
+import type { Flight } from "@/core/types"
+import { cn } from "@/core/utils"
 import { Plane, Clock, Users } from "lucide-react"
-import { Button } from "@/src/core/components/ui/button"
+import { Button } from "@/core/components/ui/button"
 
 interface FlightCardProps {
   flight: Flight

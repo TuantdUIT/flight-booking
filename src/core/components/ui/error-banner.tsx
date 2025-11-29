@@ -1,6 +1,6 @@
 "use client"
 import { AlertCircle, X } from "lucide-react"
-import { cn } from "@/src/core/utils"
+import { cn } from "@/core/utils"
 
 interface ErrorBannerProps {
   message: string
