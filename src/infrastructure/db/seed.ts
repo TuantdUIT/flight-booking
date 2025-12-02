@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
 
 // Load environment variables
 dotenv.config({ path: ".env.dev" });
@@ -19,17 +20,21 @@ async function seed() {
     await db.delete(airlines);
     await db.delete(users);
 
-    // Insert users first
+    // Insert users first with hashed passwords
+    const hashedPassword = await bcrypt.hash("password123", 12);
+    
     const [user1, user2] = await db
       .insert(users)
       .values([
         {
           name: "John Doe",
           email: "john@university.edu",
+          password: hashedPassword,
         },
         {
           name: "Jane Smith", 
           email: "jane@university.edu",
+          password: hashedPassword,
         },
       ])
       .returning();

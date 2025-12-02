@@ -6,6 +6,7 @@ let _db: ReturnType<typeof drizzle> | null = null;
 
 function getDb() {
     if (!_db) {
+        console.log(process.env.DATABASE_URL);
         const client = neon(process.env.DATABASE_URL!);
         _db = drizzle(client, { schema });
     }

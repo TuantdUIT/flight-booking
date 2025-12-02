@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const LoginSchema = z.object({
+export const SignUpSchema = z.object({
   email: z
     .string()
     .min(1, "Email is required")
@@ -9,6 +9,11 @@ export const LoginSchema = z.object({
     .string()
     .min(6, "Password must be at least 6 characters long")
     .max(100, "Password must be less than 100 characters"),
+  confirmPassword: z.string(),
+})
+.refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
 });
 
-export type LoginFormData = z.infer<typeof LoginSchema>;
+export type SignUpFormData = z.infer<typeof SignUpSchema>;
