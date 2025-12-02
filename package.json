@@ -10,10 +10,10 @@
     "db:generate": "drizzle-kit generate --config ./drizzle.config.ts",
     "db:push": "drizzle-kit push --config ./drizzle.config.ts",
     "db:seed": "tsx scripts/seed.ts",
-    "db:reset": "tsx scripts/reset-db.ts"
+    "db:reset": "tsx scripts/reset-db.ts",
+    "format": "biome format --write src"
   },
   "dependencies": {
-    "@auth/drizzle-adapter": "^1.11.1",
     "@hookform/resolvers": "^3.10.0",
     "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-accordion": "1.2.2",
@@ -48,6 +48,7 @@
     "autoprefixer": "^10.4.20",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
+    "better-auth": "^1.4.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
@@ -58,7 +59,6 @@
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
     "next": "16.0.3",
-    "next-auth": "5.0.0-beta.30",
     "next-themes": "^0.4.6",
     "react": "19.2.0",
     "react-day-picker": "9.8.0",
@@ -75,6 +75,7 @@
     "zustand": "latest"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.8",
     "@tailwindcss/postcss": "^4.1.9",
     "@types/bcryptjs": "^3.0.0",
     "@types/node": "^22",

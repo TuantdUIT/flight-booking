@@ -1,46 +1,47 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
-import { QueryProvider } from "@/core/lib/providers/query-provider"
-import "./globals.css"
+import type React from "react";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { QueryProvider } from "@/core/lib/providers/query-provider";
+import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "UniAir - University Airline Booking",
-  description: "Book your flights with ease - University Airline Ticket Booking System",
-  generator: "v0.app",
-  icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/apple-icon.png",
-  },
-}
+	title: "UniAir - University Airline Booking",
+	description:
+		"Book your flights with ease - University Airline Ticket Booking System",
+	generator: "v0.app",
+	icons: {
+		icon: [
+			{
+				url: "/icon-light-32x32.png",
+				media: "(prefers-color-scheme: light)",
+			},
+			{
+				url: "/icon-dark-32x32.png",
+				media: "(prefers-color-scheme: dark)",
+			},
+			{
+				url: "/icon.svg",
+				type: "image/svg+xml",
+			},
+		],
+		apple: "/apple-icon.png",
+	},
+};
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode
+	children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className={`${inter.className} antialiased`}>
-        <QueryProvider>{children}</QueryProvider>
-        <Analytics />
-      </body>
-    </html>
-  )
+	return (
+		<html lang="en">
+			<body className={`${inter.className} antialiased`}>
+				<QueryProvider>{children}</QueryProvider>
+				<Analytics />
+			</body>
+		</html>
+	);
 }

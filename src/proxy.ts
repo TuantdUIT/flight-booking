@@ -1,33 +1,29 @@
-import { auth } from "@/features/auth/config/auth";
+import { auth } from "@/core/lib/auth";
+import { headers } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 
-export default auth((req) => {
-  const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
+export async function proxy(request: NextRequest) {
+	const session = await auth.api.getSession({
+		headers: await headers(),
+	});
 
-  const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
-  const isPublicRoute = ["/", "/login", "/register"].includes(nextUrl.pathname);
-  const isProtectedRoute = ["/my-bookings", "/passengers", "/payment"].some(
-    (route) => nextUrl.pathname.startsWith(route)
-  );
+	// THIS IS NOT SECURE!
+	// This is the recommended approach to optimistically redirect users
+	// We recommend handling auth checks in each page/route
+	if (!session) {
+		return NextResponse.redirect(new URL("/sign-in", request.url));
+	}
 
-  // Allow API auth routes
-  if (isApiAuthRoute) {
-    return;
-  }
-
-  // Redirect to login if accessing protected route without authentication
-  if (isProtectedRoute && !isLoggedIn) {
-    return Response.redirect(new URL("/login", nextUrl));
-  }
-
-  // Redirect to home if accessing login while authenticated
-  if (nextUrl.pathname === "/login" && isLoggedIn) {
-    return Response.redirect(new URL("/", nextUrl));
-  }
-
-  return;
-});
+	return NextResponse.next();
+}
 
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+	matcher: [
+		"/confirmation",
+		"/my-bookings",
+		"/passengers",
+		"/payment",
+		"/summary",
+		"/",
+	], // Specify the routes the middleware applies to
 };
