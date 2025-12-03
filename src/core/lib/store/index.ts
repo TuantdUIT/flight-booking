@@ -1,13 +1,12 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import type {
-	User,
+	Booking,
 	Flight,
 	Passenger,
 	SearchParams,
-	Booking,
+	User,
 } from "../../types";
 
 interface AuthState {
@@ -29,21 +28,6 @@ interface BookingState {
 	setCurrentBooking: (booking: Booking | null) => void;
 	resetBooking: () => void;
 }
-
-export const useAuthStore = create<AuthState>()(
-	persist(
-		(set) => ({
-			user: null,
-			token: null,
-			isAuthenticated: false,
-			login: (user, token) => set({ user, token, isAuthenticated: true }),
-			logout: () => set({ user: null, token: null, isAuthenticated: false }),
-		}),
-		{
-			name: "auth-storage",
-		},
-	),
-);
 
 export const useBookingStore = create<BookingState>()((set) => ({
 	searchParams: null,

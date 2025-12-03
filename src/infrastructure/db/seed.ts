@@ -1,19 +1,11 @@
-import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
 
 // Load environment variables
 dotenv.config({ path: ".env.dev" });
 
-import {
-	db,
-	airlines,
-	flights,
-	passengers,
-	bookings,
-	bookingPassengers,
-	seats,
-	users,
-} from "./client";
+import { db } from "@/infrastructure/db/client";
+import { accounts, airlines, bookingPassengers, bookings, flights, passengers, seats, users } from "@/infrastructure/db/schema";
 
 async function seed() {
 	console.log("🌱 Seeding database...");
@@ -29,26 +21,41 @@ async function seed() {
 		await db.delete(airlines);
 		await db.delete(users);
 
-		// Insert users first with hashed passwords
-		const hashedPassword = await bcrypt.hash("password123", 12);
-
+		// Insert users first
 		const [user1, user2] = await db
 			.insert(users)
 			.values([
 				{
 					name: "John Doe",
 					email: "john@university.edu",
-					password: hashedPassword,
 				},
 				{
 					name: "Jane Smith",
 					email: "jane@university.edu",
-					password: hashedPassword,
 				},
 			])
 			.returning();
 
 		console.log("✅ Users created");
+
+		// Create accounts with passwords for better-auth
+		const hashedPassword = await bcrypt.hash("password123", 12);
+		await db.insert(accounts).values([
+			{
+				accountId: "john-creds",
+				providerId: "credential",
+				userId: user1.id,
+				password: hashedPassword,
+			},
+			{
+				accountId: "jane-creds",
+				providerId: "credential",
+				userId: user2.id,
+				password: hashedPassword,
+			},
+		]);
+
+		console.log("✅ User accounts created");
 
 		// Insert airlines
 		const [uniAir, uniAirExpress] = await db

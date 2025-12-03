@@ -1,31 +1,41 @@
 import { db } from "@/infrastructure/db/client";
-import {
-	accounts,
-	sessions,
-	users,
-	verification,
-} from "@/infrastructure/db/schema";
-import { betterAuth } from "better-auth";
+import * as schema from "@/infrastructure/db/schema";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { betterAuth } from "better-auth/minimal";
 import { username } from "better-auth/plugins";
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: "pg",
 		schema: {
-			user: users,
-			account: accounts,
-			session: sessions,
-			verification,
+			...schema,
+			user: schema.users,
+			account: schema.accounts,
+			session: schema.sessions,
+			verification: schema.verification,
 		},
 	}),
+	user: {
+		additionalFields: {
+			role: {
+				type: "string",
+				required: false,
+				defaultValue: "user",
+			},
+		},
+		changeEmail: {
+			enabled: false,
+		},
+		deleteUser: {
+			enabled: false,
+		},
+	},
 	pages: {
 		signIn: "/auth/signin",
 	},
 	emailAndPassword: {
 		enabled: true,
 	},
-	socialProviders: {},
 	plugins: [username()],
 	advanced: {
 		database: {
@@ -33,16 +43,11 @@ export const auth = betterAuth({
 		},
 	},
 	session: {
-		modelName: "session",
-		fields: {
-			userId: "user_id",
-			expiresAt: "expires_at",
-			userAgent: "user_agent",
-			createdAt: "created_at",
-			updatedAt: "updated_at",
-			ipAddress: "ip_address",
+		cookieCache: {
+			enabled: true,
+			maxAge: 7 * 24 * 60 * 60, // 7 days cache duration
+			strategy: "jwe", // can be "jwt" or "compact"
+			refreshCache: true, // Enable stateless refresh
 		},
-		expiresIn: 60 * 60 * 24 * 7, // 7 days
-		updateAge: 60 * 60 * 24, // 1 day (every 1 day the session expiration is updated)
 	},
 });

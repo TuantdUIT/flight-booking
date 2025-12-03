@@ -1,13 +1,12 @@
 "use client";
 
-import { Navbar } from "@/core/components/layouts/navbar";
 import { Button } from "@/core/components/ui/button";
 import { ErrorBanner } from "@/core/components/ui/error-banner";
 import { InputField } from "@/core/components/ui/input-field";
 import { LoadingSpinner } from "@/core/components/ui/loading-spinner";
 import { PriceBreakdownCard } from "@/core/components/ui/price-breakdown-card";
 import { SelectField } from "@/core/components/ui/select-field";
-import { useAuthStore, useBookingStore } from "@/core/lib/store";
+import { useBookingStore } from "@/core/lib/store";
 import type { Booking } from "@/core/types";
 import { ArrowLeft, CreditCard, Lock, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -31,7 +30,6 @@ interface PaymentErrors {
 
 export default function PaymentPage() {
 	const router = useRouter();
-	const { isAuthenticated } = useAuthStore();
 	const { selectedFlight, searchParams, passengers, setCurrentBooking } =
 		useBookingStore();
 
@@ -47,16 +45,11 @@ export default function PaymentPage() {
 	const [paymentError, setPaymentError] = useState("");
 
 	useEffect(() => {
-		if (!isAuthenticated) {
-			router.push("/auth/signin");
-			return;
-		}
-
 		if (!selectedFlight || !searchParams || passengers.length === 0) {
 			router.push("/");
 			return;
 		}
-	}, [isAuthenticated, selectedFlight, searchParams, passengers, router]);
+	}, [selectedFlight, searchParams, passengers, router]);
 
 	const formatCardNumber = (value: string) => {
 		const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
@@ -145,7 +138,7 @@ export default function PaymentPage() {
 		router.push("/confirmation");
 	};
 
-	if (!isAuthenticated || !selectedFlight || !searchParams) {
+	if (!selectedFlight || !searchParams) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
 				<LoadingSpinner text="Loading..." />
@@ -154,9 +147,7 @@ export default function PaymentPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-background">
-			<Navbar />
-
+		<div className="bg-background">
 			<div className="py-8 lg:py-12">
 				<div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
 					{/* Header */}

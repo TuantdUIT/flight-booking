@@ -1,11 +1,11 @@
 "use client";
-import { Navbar } from "@/core/components/layouts/navbar";
+
 import { PassengerForm } from "@/core/components/passenger-form";
 import { Button } from "@/core/components/ui/button";
 import { ErrorBanner } from "@/core/components/ui/error-banner";
 import { LoadingSpinner } from "@/core/components/ui/loading-spinner";
 import { PriceBreakdownCard } from "@/core/components/ui/price-breakdown-card";
-import { useAuthStore, useBookingStore } from "@/core/lib/store";
+import { useBookingStore } from "@/core/lib/store";
 import type { Passenger } from "@/core/types";
 import { ArrowLeft, ArrowRight, Clock, Plane } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -15,18 +15,12 @@ type PassengerErrors = Partial<Record<keyof Passenger, string>>;
 
 export default function PassengersPage() {
 	const router = useRouter();
-	const { isAuthenticated } = useAuthStore();
 	const { selectedFlight, searchParams, setPassengers } = useBookingStore();
 	const [passengerList, setPassengerList] = useState<Passenger[]>([]);
 	const [errors, setErrors] = useState<PassengerErrors[]>([]);
 	const [formError, setFormError] = useState("");
 
 	useEffect(() => {
-		if (!isAuthenticated) {
-			router.push("/auth/signin");
-			return;
-		}
-
 		if (!selectedFlight || !searchParams) {
 			router.push("/");
 			return;
@@ -47,7 +41,7 @@ export default function PassengersPage() {
 		);
 		setPassengerList(initialPassengers);
 		setErrors(Array(searchParams.passengers).fill({}));
-	}, [isAuthenticated, selectedFlight, searchParams, router]);
+	}, [selectedFlight, searchParams, router]);
 
 	const validatePassenger = (passenger: Passenger): PassengerErrors => {
 		const errs: PassengerErrors = {};
@@ -118,7 +112,7 @@ export default function PassengersPage() {
 		router.push("/summary");
 	};
 
-	if (!isAuthenticated || !selectedFlight || !searchParams) {
+	if (!selectedFlight || !searchParams) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
 				<LoadingSpinner text="Loading..." />
@@ -127,9 +121,7 @@ export default function PassengersPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-background">
-			<Navbar />
-
+		<div className="bg-background">
 			<div className="py-8 lg:py-12">
 				<div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
 					{/* Header */}

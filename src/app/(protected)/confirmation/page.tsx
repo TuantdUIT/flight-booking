@@ -1,9 +1,10 @@
 "use client";
-import { Navbar } from "@/core/components/layouts/navbar";
+
 import { Button } from "@/core/components/ui/button";
 import { LoadingSpinner } from "@/core/components/ui/loading-spinner";
 import { SuccessBanner } from "@/core/components/ui/success-banner";
-import { useAuthStore, useBookingStore } from "@/core/lib/store";
+import { useBookingStore } from "@/core/lib/store";
+
 import {
 	Calendar,
 	CheckCircle2,
@@ -19,20 +20,15 @@ import { useEffect } from "react";
 
 export default function ConfirmationPage() {
 	const router = useRouter();
-	const { isAuthenticated } = useAuthStore();
+
 	const { currentBooking, resetBooking } = useBookingStore();
 
 	useEffect(() => {
-		if (!isAuthenticated) {
-			router.push("/auth/signin");
-			return;
-		}
-
 		if (!currentBooking) {
 			router.push("/");
 			return;
 		}
-	}, [isAuthenticated, currentBooking, router]);
+	}, [currentBooking, router]);
 
 	const handleNewBooking = () => {
 		resetBooking();
@@ -44,7 +40,7 @@ export default function ConfirmationPage() {
 		alert("E-ticket download feature - This is a placeholder");
 	};
 
-	if (!isAuthenticated || !currentBooking) {
+	if (!currentBooking) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
 				<LoadingSpinner text="Loading..." />
@@ -53,9 +49,7 @@ export default function ConfirmationPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-background">
-			<Navbar />
-
+		<div className="bg-background">
 			<div className="py-8 lg:py-12">
 				<div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
 					{/* Success Message */}

@@ -1,9 +1,6 @@
 "use client";
-import { Navbar } from "@/core/components/layouts/navbar";
 import { Button } from "@/core/components/ui/button";
-import { LoadingSpinner } from "@/core/components/ui/loading-spinner";
 import { mockBookings } from "@/core/lib/mock-data";
-import { useAuthStore } from "@/core/lib/store";
 import {
 	ArrowRight,
 	Calendar,
@@ -13,31 +10,10 @@ import {
 	TicketCheck,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 export default function MyBookingsPage() {
-	const router = useRouter();
-	const { isAuthenticated } = useAuthStore();
-
-	useEffect(() => {
-		if (!isAuthenticated) {
-			router.push("/auth/signin");
-		}
-	}, [isAuthenticated, router]);
-
-	if (!isAuthenticated) {
-		return (
-			<div className="min-h-screen flex items-center justify-center">
-				<LoadingSpinner text="Loading..." />
-			</div>
-		);
-	}
-
 	return (
-		<div className="min-h-screen bg-background">
-			<Navbar />
-
+		<div className="bg-background">
 			<div className="py-8 lg:py-12">
 				<div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
 					<div className="mb-8">

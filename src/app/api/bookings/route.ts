@@ -1,47 +1,92 @@
-import { NextResponse } from "next/server";
+import { err, errors, ok, toJsonResponse } from "@/core/lib/http/result";
+import { protectedRoute } from "@/core/lib/route-guard";
 import { bookingsService } from "@/features/bookings/services/bookings.service";
 import { createBookingSchema } from "@/features/bookings/validations/create-booking";
+import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
+export const POST = protectedRoute(async (req, _context, user) => {
+	const requestId = crypto.randomUUID();
+
 	try {
-		const body = await request.json();
-		const bookingData = createBookingSchema.parse(body);
-		const booking = await bookingsService.createBooking(bookingData);
-		return NextResponse.json(booking);
-	} catch (error) {
-		console.error(error);
-		return NextResponse.json(
-			{ message: "Internal server error" },
-			{ status: 500 },
-		);
-	}
-}
+		const body = await req.json();
 
-export async function GET(request: Request) {
+		// Validate input data
+		const validationResult = createBookingSchema.safeParse(body);
+		if (!validationResult.success) {
+			const result = err(
+				errors.validationError(
+					"Invalid booking data",
+					validationResult.error.format(),
+				),
+			);
+			const response = toJsonResponse(result, { requestId });
+			return new NextResponse(response.body, {
+				status: response.status,
+				headers: response.headers,
+			});
+		}
+
+		const bookingData = { ...validationResult.data, userId: user.id };
+		const bookingResult = await bookingsService.createBooking(bookingData);
+
+		if (!bookingResult.ok) {
+			const response = toJsonResponse(bookingResult, { requestId });
+			return new NextResponse(response.body, {
+				status: response.status,
+				headers: response.headers,
+			});
+		}
+
+		const result = ok(bookingResult.value);
+		const response = toJsonResponse(result, { requestId });
+
+		return new NextResponse(response.body, {
+			status: response.status,
+			headers: response.headers,
+		});
+	} catch (error) {
+		console.error("Error creating booking:", error);
+
+		const result = err(errors.internalError("Failed to create booking"));
+		const response = toJsonResponse(result, { requestId });
+
+		return new NextResponse(response.body, {
+			status: response.status,
+			headers: response.headers,
+		});
+	}
+});
+
+export const GET = protectedRoute(async (req, _context, user) => {
+	const requestId = crypto.randomUUID();
+
 	try {
-		const authToken = request.headers.get("authorization");
-		// NOTE: Add your logic to get bookings for the logged-in user
-		console.log({ authToken });
+		const bookingsResult = await bookingsService.getUserBookings(user.id);
 
-		// NOTE: Replace with your actual booking data
-		const bookings = [
-			{
-				pnr: "XYZ123",
-				flightId: "1",
-				airlineId: "1",
-				passengers: [],
-				amountPaid: 500,
-				paymentStatus: "pending",
-				bookingStatus: "pending",
-			},
-		];
+		if (!bookingsResult.ok) {
+			const response = toJsonResponse(bookingsResult, { requestId });
+			return new NextResponse(response.body, {
+				status: response.status,
+				headers: response.headers,
+			});
+		}
 
-		return NextResponse.json(bookings);
+		const result = ok(bookingsResult.value);
+		const response = toJsonResponse(result, { requestId });
+
+		return new NextResponse(response.body, {
+			status: response.status,
+			headers: response.headers,
+		});
 	} catch (error) {
-		console.error(error);
-		return NextResponse.json(
-			{ message: "Internal server error" },
-			{ status: 500 },
-		);
+		console.error(`Error fetching bookings for user ${user.id}:`, error);
+
+		const result = err(errors.internalError("Failed to fetch bookings"));
+		const response = toJsonResponse(result, { requestId });
+
+		return new NextResponse(response.body, {
+			status: response.status,
+			headers: response.headers,
+		});
 	}
-}
+});

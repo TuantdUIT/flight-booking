@@ -22,15 +22,18 @@ export * from "./schema";
 
 // Re-export drizzle-orm functions to ensure version consistency
 export {
-	eq,
 	and,
-	or,
-	not,
-	isNull,
-	isNotNull,
-	inArray,
-	notInArray,
+	eq,
 	exists,
+	inArray,
+	isNotNull,
+	isNull,
+	not,
 	notExists,
+	notInArray,
+	or,
 	sql,
 } from "drizzle-orm";
+
+// Re-export the atomic transaction wrapper
+export { atomic } from "./wrapper";
