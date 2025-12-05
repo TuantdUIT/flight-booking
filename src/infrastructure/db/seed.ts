@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 
 // Load environment variables
-dotenv.config({ path: ".env.dev" });
+dotenv.config({ path: ".env.local" });
 
 import { db } from "@/infrastructure/db/client";
 import { accounts, airlines, bookingPassengers, bookings, flights, passengers, seats, users } from "@/infrastructure/db/schema";

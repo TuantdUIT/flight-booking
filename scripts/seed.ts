@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "../src/infrastructure/db/schema";
 
 // Load environment variables
-dotenv.config({ path: ".env.dev" });
+dotenv.config({ path: ".env.local" });
 
 // Create database connection
 const client = neon(process.env.DATABASE_URL!);
