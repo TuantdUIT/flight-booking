@@ -1,37 +1,31 @@
+import { errors, toJsonResponse } from "@/core/lib/http/result";
+import { flightsService } from "@/features/flights/services/flights.service";
 import { NextResponse } from "next/server";
 
-export async function GET(
-	request: Request,
-	{ params }: { params: { id: string } },
-) {
-	try {
-		const flightId = params.id;
+type Params = { params: Promise<{ id: string }> };
 
-		// NOTE: Add your flight retrieval logic here
-		console.log({ flightId });
+export async function GET(_request: Request, { params }: Params) {
+	const requestId = crypto.randomUUID();
+	const { id } = await params;
+	const flightId = Number.parseInt(id, 10);
 
-		// NOTE: Replace with your actual flight data
-		const flight = {
-			id: flightId,
-			airline_id: "1",
-			airline_name: "Airline A",
-			flight_number: "AA123",
-			origin: "JFK",
-			destination: "LAX",
-			date: "2024-12-25",
-			time: "08:00",
-			totalSeats: 150,
-			availableSeats: 50,
-			priceBase: 300,
-			priceTax: 50,
-		};
-
-		return NextResponse.json(flight);
-	} catch (error) {
-		console.error(error);
-		return NextResponse.json(
-			{ message: "Internal server error" },
-			{ status: 500 },
+	if (Number.isNaN(flightId)) {
+		const response = toJsonResponse(
+			{ ok: false, error: errors.validationError("Invalid flight ID") },
+			{ requestId },
 		);
+
+		return new NextResponse(response.body, {
+			status: response.status,
+			headers: response.headers,
+		});
 	}
+
+	const result = await flightsService.getFlightById(flightId);
+	const response = toJsonResponse(result, { requestId });
+
+	return new NextResponse(response.body, {
+		status: response.status,
+		headers: response.headers,
+	});
 }

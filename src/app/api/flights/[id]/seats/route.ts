@@ -1,31 +1,38 @@
+import { errors, toJsonResponse } from "@/core/lib/http/result";
+import { flightsService } from "@/features/flights/services/flights.service";
 import { NextResponse } from "next/server";
 
-export async function GET(
-	request: Request,
-	{ params }: { params: { id: string } },
-) {
-	try {
-		const flightId = params.id;
+type Params = { params: Promise<{ id: string }> };
 
-		// NOTE: Add your seat retrieval logic here
-		console.log({ flightId });
+export async function GET(request: Request, { params }: Params) {
+	const requestId = crypto.randomUUID();
+	const { id } = await params;
+	const flightId = Number.parseInt(id, 10);
 
-		// NOTE: Replace with your actual seat data
-		const seats = {
-			totalSeats: 150,
-			availableSeats: 50,
-			seatMap: [
-				{ seat: "1A", available: true },
-				{ seat: "1B", available: false },
-			],
-		};
-
-		return NextResponse.json(seats);
-	} catch (error) {
-		console.error(error);
-		return NextResponse.json(
-			{ message: "Internal server error" },
-			{ status: 500 },
+	if (Number.isNaN(flightId)) {
+		const response = toJsonResponse(
+			{ ok: false, error: errors.validationError("Invalid flight ID") },
+			{ requestId },
 		);
+
+		return new NextResponse(response.body, {
+			status: response.status,
+			headers: response.headers,
+		});
 	}
+
+	// Check for query param to get all seats or just available
+	const url = new URL(request.url);
+	const includeUnavailable = url.searchParams.get("all") === "true";
+
+	const result = includeUnavailable
+		? await flightsService.getAllSeats(flightId)
+		: await flightsService.getAvailableSeats(flightId);
+
+	const response = toJsonResponse(result, { requestId });
+
+	return new NextResponse(response.body, {
+		status: response.status,
+		headers: response.headers,
+	});
 }

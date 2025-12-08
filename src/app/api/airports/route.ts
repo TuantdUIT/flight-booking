@@ -1,4 +1,4 @@
-import { err, errors, ok, toJsonResponse } from "@/core/lib/http/result";
+import { err, errors, ok, Result, toJsonResponse } from "@/core/lib/http/result";
 import { airports } from "@/core/lib/mock-data";
 import { NextResponse } from "next/server";
 
@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 		// In a real app, this would fetch from database with potential validation errors
 		// For now, return mock data
 
-		const result = ok(airports);
+		const result = Result.ok(airports);
 		const response = toJsonResponse(result, { requestId });
 
 		return new NextResponse(response.body, {
