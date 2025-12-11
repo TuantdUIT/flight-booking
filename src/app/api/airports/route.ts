@@ -1,32 +1,39 @@
-import { err, errors, ok, Result, toJsonResponse } from "@/core/lib/http/result";
-import { airports } from "@/core/lib/mock-data";
+import { errors, toJsonResponse } from "@/core/lib/http/result";
+import { flightsService } from "@/features/flights/services/flights.service";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request) {
-	try {
-		// Generate request ID for traceability
-		const requestId = crypto.randomUUID();
+export async function GET() {
+	const requestId = crypto.randomUUID();
 
-		// In a real app, this would fetch from database with potential validation errors
-		// For now, return mock data
+	// Get unique airports from both origins and destinations in flights table
+	const [originsResult, destinationsResult] = await Promise.all([
+		flightsService.getOrigins(),
+		flightsService.getDestinations(),
+	]);
 
-		const result = Result.ok(airports);
-		const response = toJsonResponse(result, { requestId });
-
-		return new NextResponse(response.body, {
-			status: response.status,
-			headers: response.headers,
-		});
-	} catch (error) {
-		console.error("Error fetching airports:", error);
-
-		const requestId = crypto.randomUUID();
-		const result = err(errors.internalError("Failed to fetch airports"));
-		const response = toJsonResponse(result, { requestId });
-
+	if (!originsResult.ok) {
+		const response = toJsonResponse(originsResult, { requestId });
 		return new NextResponse(response.body, {
 			status: response.status,
 			headers: response.headers,
 		});
 	}
+
+	if (!destinationsResult.ok) {
+		const response = toJsonResponse(destinationsResult, { requestId });
+		return new NextResponse(response.body, {
+			status: response.status,
+			headers: response.headers,
+		});
+	}
+
+	// Combine and deduplicate airports from origins and destinations
+	const allAirports = [...new Set([...originsResult.value, ...destinationsResult.value])].sort();
+
+	const response = toJsonResponse({ ok: true, value: allAirports }, { requestId });
+
+	return new NextResponse(response.body, {
+		status: response.status,
+		headers: response.headers,
+	});
 }
