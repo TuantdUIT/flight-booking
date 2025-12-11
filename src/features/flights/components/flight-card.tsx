@@ -35,20 +35,16 @@ export function FlightCard({ flight, onSelect, isSelected }: FlightCardProps) {
 				<div className="flex flex-1 items-center justify-center">
 					{/* Origin - right aligned */}
 					<div className="flex-1 text-right pr-4">
-						<p className="text-2xl font-bold text-foreground">
-							{flight.departureTime}
-						</p>
 						<p className="text-sm text-muted-foreground">
 							{flight.origin}
 						</p>
 					</div>
 
-					{/* Center - Flight path indicator */}
+					{/* Center - Time and Flight path indicator */}
 					<div className="flex flex-col items-center px-6 min-w-[140px]">
-						<div className="flex items-center gap-2 text-muted-foreground">
-							<Clock className="h-4 w-4" />
-							<span className="text-sm">{flight.duration}</span>
-						</div>
+						<p className="text-2xl font-bold text-foreground mb-2">
+							{flight.departureTime}
+						</p>
 						<div className="relative w-full my-2">
 							<div className="w-full border-t border-dashed border-muted-foreground/40" />
 							<Plane className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rotate-90 text-primary" />
@@ -58,9 +54,6 @@ export function FlightCard({ flight, onSelect, isSelected }: FlightCardProps) {
 
 					{/* Destination - left aligned */}
 					<div className="flex-1 text-left pl-4">
-						<p className="text-2xl font-bold text-foreground">
-							{flight.arrivalTime}
-						</p>
 						<p className="text-sm text-muted-foreground">
 							{flight.destination}
 						</p>
@@ -70,7 +63,7 @@ export function FlightCard({ flight, onSelect, isSelected }: FlightCardProps) {
 				<div className="flex flex-col items-end gap-2">
 					<div className="text-right">
 						<p className="text-2xl font-bold text-foreground">
-							${flight.price}
+							{new Intl.NumberFormat("vi-VN").format(flight.price)} ₫
 						</p>
 						<p className="text-sm text-muted-foreground">per person</p>
 					</div>

@@ -3,7 +3,7 @@ import { sql } from "drizzle-orm";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import dotenv from "dotenv"
-import { bookingPassengers, bookings, seats, passengers, flights, airlines, users, accounts } from "@/infrastructure/db/schema";
+import { bookingPassengers, bookings, seats, passengers, flights, airlines, users, accounts, sessions } from "@/infrastructure/db/schema";
 dotenv.config({path:".env.local"})
 import { db } from "../client";
 
@@ -11,15 +11,25 @@ async function seed() {
   console.log("🌱 Seeding database for Vietnamese Airlines System...");
 
   try {
-    // 1. Clear existing data (in reverse order of dependencies)
-    console.log("🧹 Clearing existing data...");
-    await db.delete(bookingPassengers);
-    await db.delete(bookings);
-    await db.delete(seats);
-    await db.delete(passengers);
-    await db.delete(flights);
-    await db.delete(airlines);
-    await db.delete(users);
+    // // 1. Clear existing data (in reverse order of dependencies)
+    // console.log("🧹 Clearing existing data...");
+    // // First: booking_passenger (depends on bookings, passengers, seats)
+    // await db.delete(bookingPassengers);
+    // // Then: bookings (depends on flights, airlines, users)
+    // await db.delete(bookings);
+    // // Then: seats (depends on flights)
+    // await db.delete(seats);
+    // // Then: passengers (no dependencies)
+    // await db.delete(passengers);
+    // // Then: flights (depends on airlines)
+    // await db.delete(flights);
+    // // Then: airlines (no dependencies)
+    // await db.delete(airlines);
+    // // Auth tables: sessions and accounts depend on users
+    // await db.delete(sessions);
+    // await db.delete(accounts);
+    // // Finally: users
+    // await db.delete(users);
 
     // 2. Insert Users (Vietnamese Users)
     const [user1, user2] = await db
@@ -102,23 +112,16 @@ async function seed() {
       "Cát Bi (HPH)",
     ];
 
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    const dayAfterTomorrow = new Date(today);
-    dayAfterTomorrow.setDate(today.getDate() + 2);
-
-    const formatDate = (date: Date) => date.toISOString().split("T")[0];
-
     // Flight Generation Helper
     // Prices in VND: Base range 800k - 3m, Tax fixed or percentage
+    // Dates: 17/12/2025 to 31/12/2025 (format: YYYY-MM-DD)
     const flightData = [
       // Vietnam Airlines Flights
       {
         airlineId: vnAir.id,
         origin: "Nội Bài (HAN)",
         destination: "Tân Sơn Nhất (SGN)",
-        date: formatDate(today),
+        date: "2025-12-17",
         time: "08:00:00",
         totalSeats: 160,
         availableSeats: 160,
@@ -129,7 +132,7 @@ async function seed() {
         airlineId: vnAir.id,
         origin: "Tân Sơn Nhất (SGN)",
         destination: "Phú Quốc (PQC)",
-        date: formatDate(tomorrow),
+        date: "2025-12-19",
         time: "10:30:00",
         totalSeats: 120,
         availableSeats: 110,
@@ -141,7 +144,7 @@ async function seed() {
         airlineId: vjAir.id,
         origin: "Đà Nẵng (DAD)",
         destination: "Nội Bài (HAN)",
-        date: formatDate(today),
+        date: "2025-12-20",
         time: "14:15:00",
         totalSeats: 180,
         availableSeats: 150,
@@ -152,7 +155,7 @@ async function seed() {
         airlineId: vjAir.id,
         origin: "Tân Sơn Nhất (SGN)",
         destination: "Cam Ranh (CXR)",
-        date: formatDate(dayAfterTomorrow),
+        date: "2025-12-22",
         time: "07:45:00",
         totalSeats: 180,
         availableSeats: 180,
@@ -164,7 +167,7 @@ async function seed() {
         airlineId: bambooAir.id,
         origin: "Nội Bài (HAN)",
         destination: "Cát Bi (HPH)",
-        date: formatDate(tomorrow),
+        date: "2025-12-24",
         time: "16:00:00",
         totalSeats: 100,
         availableSeats: 90,
@@ -175,7 +178,7 @@ async function seed() {
         airlineId: bambooAir.id,
         origin: "Phú Quốc (PQC)",
         destination: "Nội Bài (HAN)",
-        date: formatDate(dayAfterTomorrow),
+        date: "2025-12-26",
         time: "09:20:00",
         totalSeats: 150,
         availableSeats: 120,
@@ -187,12 +190,35 @@ async function seed() {
         airlineId: pacificAir.id,
         origin: "Tân Sơn Nhất (SGN)",
         destination: "Đà Nẵng (DAD)",
-        date: formatDate(today),
+        date: "2025-12-28",
         time: "19:00:00",
         totalSeats: 180,
         availableSeats: 175,
         priceBase: "890000.00",
         priceTax: "290000.00",
+      },
+      // Additional flights for more coverage
+      {
+        airlineId: vnAir.id,
+        origin: "Tân Sơn Nhất (SGN)",
+        destination: "Nội Bài (HAN)",
+        date: "2025-12-30",
+        time: "06:30:00",
+        totalSeats: 160,
+        availableSeats: 155,
+        priceBase: "2400000.00",
+        priceTax: "420000.00",
+      },
+      {
+        airlineId: vjAir.id,
+        origin: "Nội Bài (HAN)",
+        destination: "Đà Nẵng (DAD)",
+        date: "2025-12-31",
+        time: "11:00:00",
+        totalSeats: 180,
+        availableSeats: 170,
+        priceBase: "1100000.00",
+        priceTax: "300000.00",
       },
     ];
 
