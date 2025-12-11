@@ -93,7 +93,7 @@ export function HeroSearch({
 					departureTime: flight.time,
 					arrivalTime: "", // Calculate if needed
 					duration: "", // Calculate if needed
-					price: Number(flight.priceBase) + Number(flight.priceTax),
+					price: Number(flight.priceBase),
 					seatsRemaining: flight.availableSeats,
 				}));
 

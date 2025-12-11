@@ -186,37 +186,48 @@ export default function PassengersPage() {
 										</div>
 									</div>
 
-									<div className="border-t pt-4">
+									<div className="border-t pt-4 space-y-4">
+										{/* Time centered at top */}
+										<div className="text-center">
+											<p className="text-3xl font-bold text-foreground">
+												{selectedFlight.departureTime}
+											</p>
+										</div>
+
+										{/* Origin, Flight Path, Destination */}
 										<div className="flex justify-between items-center">
-											<div>
-												<p className="text-lg font-bold text-foreground">
-													{selectedFlight.departureTime}
-												</p>
+											<div className="text-left">
 												<p className="text-sm text-muted-foreground">
 													{selectedFlight.origin}
 												</p>
 											</div>
 											<div className="flex flex-col items-center px-4">
-												<Clock className="h-4 w-4 text-muted-foreground" />
+												<div className="w-32 border-t-2 border-dashed border-muted-foreground/40 relative mb-1">
+													<Plane className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-primary rotate-90" />
+												</div>
 												<span className="text-xs text-muted-foreground">
-													{selectedFlight.duration}
+													Direct
 												</span>
 											</div>
 											<div className="text-right">
-												<p className="text-lg font-bold text-foreground">
-													{selectedFlight.arrivalTime}
-												</p>
 												<p className="text-sm text-muted-foreground">
 													{selectedFlight.destination}
 												</p>
 											</div>
 										</div>
-									</div>
 
-									<div className="border-t pt-4">
-										<p className="text-sm text-muted-foreground">
-											{searchParams.departureDate}
-										</p>
+										{/* Date centered below flight path */}
+										<div className="text-center">
+											<p className="text-sm text-muted-foreground">
+												{(() => {
+													const date = new Date(searchParams.departureDate);
+													const day = String(date.getDate()).padStart(2, '0');
+													const month = String(date.getMonth() + 1).padStart(2, '0');
+													const year = date.getFullYear();
+													return `${day}/${month}/${year}`;
+												})()}
+											</p>
+										</div>
 									</div>
 								</div>
 

@@ -21,7 +21,7 @@ import { useEffect } from "react";
 export default function ConfirmationPage() {
 	const router = useRouter();
 
-	const { currentBooking, resetBooking } = useBookingStore();
+	const { currentBooking, resetBooking, searchParams } = useBookingStore();
 
 	useEffect(() => {
 		if (!currentBooking) {
@@ -110,27 +110,33 @@ export default function ConfirmationPage() {
 								</div>
 							</div>
 
-							<div className="border-t pt-4">
-								<div className="flex items-center justify-between">
-									<div>
+							<div className="border-t pt-4 space-y-4">
+								{/* Time centered at top */}
+								<div className="text-center">
+									<p className="text-3xl font-bold text-foreground">
+										{currentBooking.flight.departureTime}
+									</p>
+								</div>
+
+								{/* Origin, Flight Path, Destination */}
+								<div className="flex justify-between items-center">
+									<div className="text-left">
 										<div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
 											<MapPin className="h-4 w-4" />
 											Departure
 										</div>
-										<p className="text-xl font-bold text-foreground">
-											{currentBooking.flight.departureTime}
-										</p>
 										<p className="text-sm text-muted-foreground">
 											{currentBooking.flight.origin}
 										</p>
 									</div>
 
-									<div className="flex flex-col items-center px-6">
-										<Clock className="h-4 w-4 text-muted-foreground" />
-										<span className="text-sm text-muted-foreground">
-											{currentBooking.flight.duration}
+									<div className="flex flex-col items-center px-4">
+										<div className="w-32 border-t-2 border-dashed border-muted-foreground/40 relative mb-1">
+											<Plane className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-primary rotate-90" />
+										</div>
+										<span className="text-xs text-muted-foreground">
+											Direct
 										</span>
-										<div className="w-16 border-t border-dashed border-muted-foreground/40 mt-1" />
 									</div>
 
 									<div className="text-right">
@@ -138,19 +144,27 @@ export default function ConfirmationPage() {
 											<MapPin className="h-4 w-4" />
 											Arrival
 										</div>
-										<p className="text-xl font-bold text-foreground">
-											{currentBooking.flight.arrivalTime}
-										</p>
 										<p className="text-sm text-muted-foreground">
 											{currentBooking.flight.destination}
 										</p>
 									</div>
 								</div>
-							</div>
 
-							<div className="border-t pt-4 flex items-center gap-2 text-sm text-muted-foreground">
-								<Calendar className="h-4 w-4" />
-								{currentBooking.createdAt}
+								{/* Date centered below */}
+								<div className="text-center">
+									<div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+										<Calendar className="h-4 w-4" />
+										{(() => {
+											// Use flight departure date from searchParams if available, otherwise use createdAt
+											const dateString = searchParams?.departureDate || currentBooking.createdAt;
+											const date = new Date(dateString);
+											const day = String(date.getDate()).padStart(2, '0');
+											const month = String(date.getMonth() + 1).padStart(2, '0');
+											const year = date.getFullYear();
+											return `${day}/${month}/${year}`;
+										})()}
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -190,7 +204,7 @@ export default function ConfirmationPage() {
 								Total Paid
 							</span>
 							<span className="text-2xl font-bold text-primary">
-								${currentBooking.totalPrice}
+								{new Intl.NumberFormat('vi-VN').format(currentBooking.totalPrice)} ₫
 							</span>
 						</div>
 					</div>
