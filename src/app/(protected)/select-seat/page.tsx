@@ -1,14 +1,14 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { Button } from "@/core/components/ui/button";
 import { SeatMap, SelectionSummary } from "@/features/seats/components";
 import { useSeats } from "@/features/seats/hooks/use-seats";
 import { useSeatSelectionStore } from "@/features/seats/store";
 import { useBookingStore } from "@/core/lib/store";
 import type { Seat } from "@/core/types/seat";
-import { ArrowLeft, Loader2, Users } from "lucide-react";
+import { ArrowLeft, Loader2, Users, Clock, Calendar, Plane } from "lucide-react";
 import { toast } from "sonner";
 
 function SelectSeatContent() {
@@ -20,10 +20,40 @@ function SelectSeatContent() {
   const { selectedSeats, toggleSeat, removeSeat, clearSelection } =
     useSeatSelectionStore();
   
-  const { searchParams: bookingSearchParams } = useBookingStore();
+  const { searchParams: bookingSearchParams, selectedFlight } = useBookingStore();
   const passengerCount = bookingSearchParams?.passengers || 1;
 
   const { data: seats = [], isLoading, error } = useSeats(flightId);
+
+  // Track the current flight ID to detect changes
+  const previousFlightIdRef = useRef<number | null>(null);
+
+  // Clear selected seats when flight changes or component unmounts
+  useEffect(() => {
+    // If flight ID changed (user selected a different flight)
+    if (previousFlightIdRef.current !== null && previousFlightIdRef.current !== flightId) {
+      clearSelection();
+      toast.info("Seat selection cleared for new flight");
+    }
+    
+    // Update the ref with current flight ID
+    previousFlightIdRef.current = flightId;
+
+    // Cleanup: Clear seats when leaving the page
+    return () => {
+      // Only clear if we're actually leaving (not just re-rendering)
+      clearSelection();
+    };
+  }, [flightId, clearSelection]);
+
+  // Format date to dd/mm/yyyy
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   const handleSeatClick = (seat: Seat) => {
     if (!seat.is_available) {
@@ -94,20 +124,67 @@ function SelectSeatContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="ghost" size="icon" onClick={handleBack}>
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">Select Your Seats</h1>
-          <p className="text-gray-500 text-sm">Flight #{flightId}</p>
-          <div className="flex items-center gap-2 mt-1">
-            <Users className="w-4 h-4 text-gray-400" />
-            <span className="text-sm text-gray-600">
-              {selectedSeats.length} / {passengerCount} seat{passengerCount > 1 ? 's' : ''} selected
-            </span>
+      <div className="mb-8">
+        <div className="flex items-center gap-4 mb-4">
+          <Button variant="ghost" size="icon" onClick={handleBack}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">Select Your Seats</h1>
+            <div className="flex items-center gap-2 mt-1">
+              <Users className="w-4 h-4 text-gray-400" />
+              <span className="text-sm text-gray-600">
+                {selectedSeats.length} / {passengerCount} seat{passengerCount > 1 ? 's' : ''} selected
+              </span>
+            </div>
           </div>
         </div>
+
+        {/* Flight Information Card */}
+        {selectedFlight && (
+          <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <Plane className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Flight</p>
+                  <p className="font-semibold text-lg">{selectedFlight.flightNumber}</p>
+                  <p className="text-sm text-gray-600">{selectedFlight.airline}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <p className="text-2xl font-bold">{selectedFlight.departureTime}</p>
+                  <p className="text-sm text-gray-600">{selectedFlight.origin}</p>
+                </div>
+
+                <div className="flex flex-col items-center px-4">
+                  <Clock className="w-5 h-5 text-gray-400 mb-1" />
+                  <div className="w-24 border-t-2 border-dashed border-gray-300 relative">
+                    <Plane className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-blue-600 rotate-90" />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">{selectedFlight.duration}</p>
+                </div>
+
+                <div className="text-center">
+                  <p className="text-2xl font-bold">{selectedFlight.arrivalTime}</p>
+                  <p className="text-sm text-gray-600">{selectedFlight.destination}</p>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <div className="flex items-center gap-2 text-gray-600 mb-1">
+                  <Calendar className="w-4 h-4" />
+                  <p className="text-sm">{formatDate(selectedFlight.departureTime)}</p>
+                </div>
+                <p className="text-xs text-gray-500">Departure Date</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main content */}
