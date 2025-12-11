@@ -49,7 +49,7 @@ export function SelectionSummary({
 
   if (selectedSeats.length === 0) {
     return (
-      <Card className="w-full max-w-2xl">
+      <Card className="w-full max-w-5xl">
         <CardContent className="py-8 text-center">
           <p className="text-gray-500 text-sm">
             Select seats from the map to continue
@@ -65,7 +65,7 @@ export function SelectionSummary({
   }
 
   return (
-    <Card className="w-full max-w-2xl">
+    <Card className="w-full max-w-5xl">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Selected Seats</CardTitle>
@@ -83,60 +83,65 @@ export function SelectionSummary({
         {selectedSeats.map((seat) => (
           <div
             key={seat.id}
-            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-8 p-5 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <div className="flex items-center gap-4 flex-1">
-              <div
-                className={`w-12 h-12 rounded-lg flex items-center justify-center text-sm font-bold shadow-sm ${
-                  seat.class === "business"
-                    ? "bg-amber-100 text-amber-700 border-2 border-amber-300"
-                    : "bg-sky-100 text-sky-700 border-2 border-sky-300"
-                }`}
-              >
-                {seat.seat_number}
-              </div>
-              <div className="flex-1 grid grid-cols-3 gap-4">
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Class</p>
-                  <p className="text-sm font-medium capitalize">{seat.class}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Row</p>
-                  <p className="text-sm font-medium">{seat.seat_number.replace(/[A-Z]/g, "")}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Position</p>
-                  <p className="text-sm font-medium">
-                    {getSeatPosition(seat.seat_number)}
-                  </p>
-                </div>
-              </div>
+            {/* Seat Badge - Larger */}
+            <div
+              className={`w-20 h-20 rounded-xl flex items-center justify-center text-lg font-bold shadow-md ${
+                seat.class === "business"
+                  ? "bg-amber-100 text-amber-700 border-2 border-amber-300"
+                  : "bg-sky-100 text-sky-700 border-2 border-sky-300"
+              }`}
+            >
+              {seat.seat_number}
             </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <p className="text-xs text-gray-500 mb-1">Price</p>
+
+            {/* Seat Details Grid - 5 columns for more space */}
+            <div className="flex-1 grid grid-cols-5 gap-8">
+              <div>
+                <p className="text-xs text-gray-500 mb-2">Seat Number</p>
+                <p className="text-base font-bold">{seat.seat_number}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-2">Class</p>
+                <p className="text-base font-semibold capitalize">{seat.class}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-2">Row</p>
+                <p className="text-base font-semibold">{seat.seat_number.replace(/[A-Z]/g, "")}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-2">Position</p>
+                <p className="text-base font-semibold">
+                  {getSeatPosition(seat.seat_number)}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-2">Price</p>
                 <p className="text-base font-bold text-gray-900">{formatVND(parseFloat(seat.price))} ₫</p>
               </div>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => onRemoveSeat(seat.id)}
-                className="h-8 w-8 hover:bg-red-50 hover:text-red-600"
-              >
-                <X className="w-4 h-4" />
-              </Button>
             </div>
+
+            {/* Remove Button - Larger */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onRemoveSeat(seat.id)}
+              className="h-12 w-12 hover:bg-red-50 hover:text-red-600 flex-shrink-0"
+            >
+              <X className="w-6 h-6" />
+            </Button>
           </div>
         ))}
 
-        <div className="flex items-center justify-between pt-4 border-t mt-3 px-2">
+        <div className="flex items-center justify-between pt-6 border-t mt-4 px-4">
           <div>
-            <p className="text-xs text-gray-500 mb-1">Total Amount</p>
-            <p className="text-sm text-gray-600">{selectedSeats.length} seat{selectedSeats.length > 1 ? 's' : ''}</p>
+            <p className="text-sm text-gray-500 mb-2">Total Amount</p>
+            <p className="text-lg font-semibold text-gray-700">{selectedSeats.length} seat{selectedSeats.length > 1 ? 's' : ''}</p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-gray-500 mb-1">Total Price</p>
-            <p className="text-2xl font-bold text-emerald-600">
+            <p className="text-sm text-gray-500 mb-2">Total Price</p>
+            <p className="text-4xl font-bold text-emerald-600">
               {formatVND(totalPrice)} ₫
             </p>
           </div>
