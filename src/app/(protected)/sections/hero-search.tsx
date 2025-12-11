@@ -72,11 +72,41 @@ export function HeroSearch({
 		propSetIsSearching(true);
 		setHasSearched(false);
 
-		// Simulate API call
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		try {
+			// Call the real search API
+			const response = await fetch("/api/flights/search", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(searchForm),
+			});
 
-		setSearchParams(searchForm);
-		setSearchResults(flightsData || []);
+			const result = await response.json();
+
+			if (result.success && result.data) {
+				// Map API response to Flight type
+				const flights: Flight[] = result.data.map((flight: any) => ({
+					id: String(flight.id),
+					flightNumber: flight.flightNumber,
+					airline: flight.airline,
+					origin: flight.origin,
+					destination: flight.destination,
+					departureTime: flight.time,
+					arrivalTime: "", // Calculate if needed
+					duration: "", // Calculate if needed
+					price: Number(flight.priceBase) + Number(flight.priceTax),
+					seatsRemaining: flight.availableSeats,
+				}));
+
+				setSearchParams(searchForm);
+				setSearchResults(flights);
+			} else {
+				setSearchResults([]);
+			}
+		} catch (error) {
+			console.error("Search failed:", error);
+			setSearchResults([]);
+		}
+
 		setHasSearched(true);
 		setIsSearchingState(false);
 		propSetIsSearching(false);

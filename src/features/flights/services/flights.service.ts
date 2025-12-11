@@ -58,18 +58,18 @@ export const flightsService = {
 	},
 
 	/**
-	 * Search flights by origin, destination, and date
+	 * Search flights by origin and destination (returns all matching flights)
 	 */
 	searchFlights: async (
 		params: FlightSearchSchema,
 	): Promise<Result<FlightWithAirline[]>> => {
 		try {
-			const { origin, destination, departureDate, passengers } = params;
+			const { origin, destination, passengers } = params;
 
+			// Search by origin and destination only
 			const flights = await flightsRepository.searchFlights(
 				origin,
 				destination,
-				departureDate,
 			);
 
 			// Filter flights with enough available seats

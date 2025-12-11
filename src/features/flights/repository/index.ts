@@ -77,7 +77,7 @@ export const flightsRepository = {
     },
     // --------------------------------------
 
-    searchFlights: async (origin: string, destination: string, date: string) => {
+    searchFlights: async (origin: string, destination: string) => {
         return await db
             .select()
             .from(flights)
@@ -85,7 +85,6 @@ export const flightsRepository = {
                 and(
                     eq(flights.origin, origin),
                     eq(flights.destination, destination),
-                    eq(flights.date, date),
                 ),
             );
     },

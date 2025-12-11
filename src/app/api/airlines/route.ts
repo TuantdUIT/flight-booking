@@ -1,41 +1,15 @@
-import { err, errors, ok, toJsonResponse } from "@/core/lib/http/result";
+import { toJsonResponse } from "@/core/lib/http/result";
+import { flightsService } from "@/features/flights/services/flights.service";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request) {
+export async function GET() {
 	const requestId = crypto.randomUUID();
 
-	try {
-		// NOTE: Add your airline retrieval logic here
-		console.log("Fetching all airlines");
+	const result = await flightsService.getAllAirlines();
+	const response = toJsonResponse(result, { requestId });
 
-		// NOTE: Replace with your actual airline data
-		const airlines = [
-			{
-				id: "1",
-				name: "Airline A",
-			},
-			{
-				id: "2",
-				name: "Airline B",
-			},
-		];
-
-		const result = ok(airlines);
-		const response = toJsonResponse(result, { requestId });
-
-		return new NextResponse(response.body, {
-			status: response.status,
-			headers: response.headers,
-		});
-	} catch (error) {
-		console.error("Error fetching airlines:", error);
-
-		const result = err(errors.internalError("Failed to fetch airlines"));
-		const response = toJsonResponse(result, { requestId });
-
-		return new NextResponse(response.body, {
-			status: response.status,
-			headers: response.headers,
-		});
-	}
+	return new NextResponse(response.body, {
+		status: response.status,
+		headers: response.headers,
+	});
 }
