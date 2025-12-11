@@ -38,7 +38,7 @@ export default function HomePage() {
 
 	const handleSelectFlight = (flight: Flight) => {
 		setSelectedFlight(flight);
-		router.push("/passengers");
+		router.push(`/select-seat?flightId=${flight.id}`);
 	};
 
 	return (
