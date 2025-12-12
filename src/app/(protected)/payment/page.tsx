@@ -108,7 +108,6 @@ export default function PaymentPage() {
 
 		setIsProcessing(true);
 
-		// Simulate payment processing
 		await new Promise((resolve) => setTimeout(resolve, 2500));
 
 		// 10% chance of payment failure for demo

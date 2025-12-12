@@ -34,18 +34,24 @@ export function PriceBreakdownCard({
 					<span className="text-muted-foreground">
 						Base fare ({passengerCount} × {formatVND(flight.price)} ₫)
 					</span>
-					<span className="font-medium text-foreground">{formatVND(baseFare)} ₫</span>
+					<span className="font-medium text-foreground">
+						{formatVND(baseFare)} ₫
+					</span>
 				</div>
 
 				<div className="flex justify-between text-sm">
 					<span className="text-muted-foreground">Taxes & fees (12%)</span>
-					<span className="font-medium text-foreground">{formatVND(taxes)} ₫</span>
+					<span className="font-medium text-foreground">
+						{formatVND(taxes)} ₫
+					</span>
 				</div>
 
 				<div className="border-t pt-3 mt-3">
 					<div className="flex justify-between">
 						<span className="font-semibold text-foreground">Total</span>
-						<span className="text-xl font-bold text-primary">{formatVND(total)} ₫</span>
+						<span className="text-xl font-bold text-primary">
+							{formatVND(total)} ₫
+						</span>
 					</div>
 				</div>
 			</div>

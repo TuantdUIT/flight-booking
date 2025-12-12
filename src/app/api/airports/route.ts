@@ -28,9 +28,14 @@ export async function GET() {
 	}
 
 	// Combine and deduplicate airports from origins and destinations
-	const allAirports = [...new Set([...originsResult.value, ...destinationsResult.value])].sort();
+	const allAirports = [
+		...new Set([...originsResult.value, ...destinationsResult.value]),
+	].sort();
 
-	const response = toJsonResponse({ ok: true, value: allAirports }, { requestId });
+	const response = toJsonResponse(
+		{ ok: true, value: allAirports },
+		{ requestId },
+	);
 
 	return new NextResponse(response.body, {
 		status: response.status,

@@ -1,20 +1,26 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
-import * as schema from "./schema";
+import { Pool } from "@neondatabase/serverless";
 import dotenv from "dotenv";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import * as schema from "./schema";
 
-dotenv.config({path: ".env.local"})
+dotenv.config({ path: ".env.local" });
 
-let _db: ReturnType<typeof drizzle> | null = null;
+let _db: Pool | null = null;
 
 function getDb() {
 	if (!_db) {
-		console.log(process.env.DATABASE_URL);
-		const client = neon(process.env.DATABASE_URL!);
-		_db = drizzle(client, { schema });
+		_db = new Pool({
+			connectionString: process.env.DATABASE_URL!,
+			max: 4, // Reduced for serverless (fewer concurrent functions)
+			min: 0, // Allow complete scaling to zero
+			idleTimeoutMillis: 10000, // Faster cleanup than default 30s
+			connectionTimeoutMillis: 2000, // Fail fast instead of default 60s
+			allowExitOnIdle: true, // Allow pool to exit when idle
+		});
 	}
+	const client = drizzle({ schema, client: _db });
 
-	return _db;
+	return client;
 }
 
 // Export a proxy that forwards all calls to the actual db instance

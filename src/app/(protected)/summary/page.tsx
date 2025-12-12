@@ -5,6 +5,7 @@ import { ErrorBanner } from "@/core/components/ui/error-banner";
 import { LoadingSpinner } from "@/core/components/ui/loading-spinner";
 import { PriceBreakdownCard } from "@/core/components/ui/price-breakdown-card";
 import { useBookingStore } from "@/core/lib/store";
+import { useCreateBookingMutation } from "@/features/bookings/api";
 import {
 	AlertTriangle,
 	ArrowLeft,
@@ -19,11 +20,16 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function SummaryPage() {
 	const router = useRouter();
-	const { selectedFlight, searchParams, passengers } = useBookingStore();
+	const { selectedFlight, searchParams, passengers, setCurrentBooking } =
+		useBookingStore();
 	const [seatError, setSeatError] = useState(false);
+
+	// Use the booking mutation hook
+	const createBooking = useCreateBookingMutation();
 
 	useEffect(() => {
 		if (!selectedFlight || !searchParams || passengers.length === 0) {
@@ -31,15 +37,81 @@ export default function SummaryPage() {
 			return;
 		}
 
-		// Simulate seat availability check
-		const checkAvailability = () => {
-			// 10% chance of seat unavailability for demo
-			if (Math.random() < 0.1) {
-				setSeatError(true);
-			}
-		};
-		checkAvailability();
+		// Real seat availability check would happen on the backend during booking
+		// The API will return an error if seats are no longer available
 	}, [selectedFlight, searchParams, passengers, router]);
+
+	// Handle direct booking (skip payment page for testing)
+	const handleDirectBooking = async () => {
+		if (!selectedFlight || !searchParams) {
+			toast.error("Missing flight or search information");
+			return;
+		}
+
+		try {
+			// Prepare booking data
+			const bookingData = {
+				flightId: selectedFlight.id,
+				passengers: passengers.map((p) => ({
+					firstName: p.fullName.split(" ")[0] || p.fullName,
+					lastName: p.fullName.split(" ").slice(1).join(" ") || p.fullName,
+					email: p.email,
+					phone: p.phoneNumber,
+				})),
+				paymentInfo: {
+					cardNumber: "4111111111111111", // Test card
+					expiryDate: "12/25",
+					cvv: "123",
+				},
+			};
+
+			// Call the mutation
+			const result = await createBooking.mutateAsync(bookingData);
+
+			// Show success message
+			toast.success(`Booking created! PNR: ${result.pnr}`);
+
+			// Calculate total for display
+			const baseFare = selectedFlight.price * searchParams.passengers;
+			const taxes = Math.round(baseFare * 0.12);
+			const serviceFee = 15;
+			const total = baseFare + taxes + serviceFee;
+
+			// Create booking object for confirmation page
+			const booking = {
+				id: result.bookingId.toString(),
+				pnr: result.pnr,
+				flight: selectedFlight,
+				passengers: passengers,
+				totalPrice: total,
+				status:
+					result.status === "confirmed"
+						? ("confirmed" as const)
+						: ("pending" as const),
+				createdAt: new Date().toISOString().split("T")[0],
+			};
+
+			setCurrentBooking(booking);
+			router.push("/confirmation");
+		} catch (error) {
+			console.error("Booking error:", error);
+
+			// Handle specific error types
+			if (error instanceof Error) {
+				if (error.message.includes("Not enough available seats")) {
+					setSeatError(true);
+					toast.error("Seats are no longer available");
+				} else if (error.message.includes("Flight not found")) {
+					toast.error("Flight is no longer available");
+					router.push("/");
+				} else {
+					toast.error(error.message || "Failed to create booking");
+				}
+			} else {
+				toast.error("An unexpected error occurred. Please try again.");
+			}
+		}
+	};
 
 	if (!selectedFlight || !searchParams || passengers.length === 0) {
 		return (
@@ -128,9 +200,11 @@ export default function SummaryPage() {
 										<div className="flex flex-col items-center">
 											{/* Departure Time - Centered above plane */}
 											<div className="text-center mb-3">
-												<span className="text-2xl font-bold text-foreground">{selectedFlight.departureTime}</span>
+												<span className="text-2xl font-bold text-foreground">
+													{selectedFlight.departureTime}
+												</span>
 											</div>
-											
+
 											{/* Plane Icon and Path */}
 											<div className="relative flex items-center">
 												<div className="w-32 border-t-2 border-dashed border-muted-foreground/40"></div>
@@ -138,11 +212,13 @@ export default function SummaryPage() {
 													<Plane className="w-6 h-6 text-primary rotate-90" />
 												</div>
 											</div>
-											
+
 											{/* Direct Label */}
 											<div className="flex items-center gap-1 mt-3">
 												<Clock className="w-3 h-3 text-muted-foreground" />
-												<span className="text-xs text-muted-foreground">Direct</span>
+												<span className="text-xs text-muted-foreground">
+													Direct
+												</span>
 											</div>
 										</div>
 
@@ -161,15 +237,20 @@ export default function SummaryPage() {
 											<p className="text-sm font-medium text-foreground">
 												{(() => {
 													const date = new Date(searchParams.departureDate);
-													if (isNaN(date.getTime())) return 'N/A';
-													const day = String(date.getDate()).padStart(2, '0');
-													const month = String(date.getMonth() + 1).padStart(2, '0');
+													if (isNaN(date.getTime())) return "N/A";
+													const day = String(date.getDate()).padStart(2, "0");
+													const month = String(date.getMonth() + 1).padStart(
+														2,
+														"0",
+													);
 													const year = date.getFullYear();
 													return `${day}/${month}/${year}`;
 												})()}
 											</p>
 										</div>
-										<p className="text-xs text-muted-foreground">Departure Date</p>
+										<p className="text-xs text-muted-foreground">
+											Departure Date
+										</p>
 									</div>
 								</div>
 							</div>
@@ -232,11 +313,35 @@ export default function SummaryPage() {
 								<Button
 									variant="outline"
 									onClick={() => router.push("/passengers")}
+									disabled={createBooking.isPending}
 								>
 									Edit Passengers
 								</Button>
-								<Button onClick={() => router.push("/payment")} size="lg">
-									Confirm & Pay
+
+								{/* Option 1: Direct Booking (for testing) */}
+								<Button
+									onClick={handleDirectBooking}
+									disabled={createBooking.isPending}
+									size="lg"
+									variant="secondary"
+								>
+									{createBooking.isPending ? (
+										<>
+											<LoadingSpinner size="sm" />
+											<span className="ml-2">Creating Booking...</span>
+										</>
+									) : (
+										"Book Now (Test)"
+									)}
+								</Button>
+
+								{/* Option 2: Go to Payment Page */}
+								<Button
+									onClick={() => router.push("/payment")}
+									size="lg"
+									disabled={createBooking.isPending}
+								>
+									Proceed to Payment
 								</Button>
 							</div>
 						</div>

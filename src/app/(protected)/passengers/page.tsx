@@ -191,7 +191,9 @@ export default function PassengersPage() {
 										<div className="flex justify-center items-center gap-12">
 											{/* Origin */}
 											<div className="text-center">
-												<p className="text-xs text-muted-foreground mb-2">From</p>
+												<p className="text-xs text-muted-foreground mb-2">
+													From
+												</p>
 												<p className="text-sm font-medium text-foreground">
 													{selectedFlight.origin}
 												</p>
@@ -201,9 +203,11 @@ export default function PassengersPage() {
 											<div className="flex flex-col items-center">
 												{/* Departure Time - Centered above plane */}
 												<div className="text-center mb-3">
-													<span className="text-2xl font-bold text-foreground">{selectedFlight.departureTime}</span>
+													<span className="text-2xl font-bold text-foreground">
+														{selectedFlight.departureTime}
+													</span>
 												</div>
-												
+
 												{/* Plane Icon and Path */}
 												<div className="relative flex items-center">
 													<div className="w-32 border-t-2 border-dashed border-muted-foreground/40"></div>
@@ -211,11 +215,13 @@ export default function PassengersPage() {
 														<Plane className="w-6 h-6 text-primary rotate-90" />
 													</div>
 												</div>
-												
+
 												{/* Direct Label */}
 												<div className="flex items-center gap-1 mt-3">
 													<Clock className="w-3 h-3 text-muted-foreground" />
-													<span className="text-xs text-muted-foreground">Direct</span>
+													<span className="text-xs text-muted-foreground">
+														Direct
+													</span>
 												</div>
 											</div>
 
@@ -235,15 +241,20 @@ export default function PassengersPage() {
 												<p className="text-sm font-medium text-foreground">
 													{(() => {
 														const date = new Date(searchParams.departureDate);
-														if (isNaN(date.getTime())) return 'N/A';
-														const day = String(date.getDate()).padStart(2, '0');
-														const month = String(date.getMonth() + 1).padStart(2, '0');
+														if (isNaN(date.getTime())) return "N/A";
+														const day = String(date.getDate()).padStart(2, "0");
+														const month = String(date.getMonth() + 1).padStart(
+															2,
+															"0",
+														);
 														const year = date.getFullYear();
 														return `${day}/${month}/${year}`;
 													})()}
 												</p>
 											</div>
-											<p className="text-xs text-muted-foreground mt-1">Departure Date</p>
+											<p className="text-xs text-muted-foreground mt-1">
+												Departure Date
+											</p>
 										</div>
 									</div>
 								</div>

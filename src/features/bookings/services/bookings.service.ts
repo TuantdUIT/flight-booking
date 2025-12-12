@@ -2,8 +2,14 @@ import { Result, err, errors, ok } from "@/core/lib/http/result";
 import { flightsRepository } from "@/features/flights/repository";
 import { passengersRepository } from "@/features/passengers/repository";
 import { ticketsRepository } from "@/features/tickets/repository";
-import { atomic } from "@/infrastructure/db/client";
-import { bookingPassengers, bookings, flights, seats } from "@/infrastructure/db/schema";
+import { db } from "@/infrastructure/db/client";
+import {
+	bookingPassengers,
+	bookings,
+	flights,
+	seats,
+	passengers as passengersTable,
+} from "@/infrastructure/db/schema";
 import { eq } from "drizzle-orm";
 import { bookingsRepository } from "../repository";
 import { BookingStatus, CreateBookingResult } from "../types";
@@ -11,7 +17,7 @@ import { CreateBookingSchema } from "../validations/create-booking";
 
 export class BookingsService {
 	async createBooking(
-		bookingData: CreateBookingSchema & { userId: string }
+		bookingData: CreateBookingSchema & { userId: string },
 	): Promise<Result<CreateBookingResult>> {
 		try {
 			const { flightId, passengers, paymentInfo, userId } = bookingData;
@@ -28,15 +34,19 @@ export class BookingsService {
 			}
 
 			// Find available seats
-			const availableSeats = await flightsRepository.findAvailableSeatsByFlightId(
-				flight.id
-			);
+			const availableSeats =
+				await flightsRepository.findAvailableSeatsByFlightId(flight.id);
 			if (availableSeats.length < passengers.length) {
 				return err(errors.validationError("Not enough available seats"));
 			}
 
 			// Create passengers
-			const createdPassengers: Array<{id: number, name: string, email?: string | null, phoneNumber?: string | null}> = [];
+			const createdPassengers: Array<{
+				id: number;
+				name: string;
+				email?: string | null;
+				phoneNumber?: string | null;
+			}> = [];
 			for (const passenger of passengers) {
 				const passengerData = {
 					name: `${passenger.firstName} ${passenger.lastName}`,
@@ -44,23 +54,32 @@ export class BookingsService {
 					phoneNumber: passenger.phone,
 				};
 
-				const newPassenger = await passengersRepository.createPassenger(passengerData);
+				const newPassenger =
+					await passengersRepository.createPassenger(passengerData);
 				createdPassengers.push(newPassenger);
 			}
 
-			// Use atomic transaction for booking creation
-			const bookingResult = await atomic(async (tx) => {
+			// Calculate total amount
+			const baseFare = Number(flight.priceBase) * passengers.length;
+			const taxes = Number(flight.priceTax) * passengers.length;
+			const totalAmount = baseFare + taxes;
+
+			// Use database transaction for booking creation
+			const bookingResult = await db.transaction(async (tx) => {
 				// Create booking
 				const bookingData = {
 					flightId: flight.id,
 					airlineId: flight.airlineId,
 					userId: userId,
-					amountPaid: flight.priceBase, // Simplified - should calculate total based on passengers
-					paymentStatus: "paid" as const, // Simplified - should integrate with payment provider
+					amountPaid: totalAmount.toString(),
+					paymentStatus: "paid" as const,
 					bookingStatus: "confirmed" as const,
 				};
 
-				const [newBooking] = await tx.insert(bookings).values(bookingData).returning();
+				const [newBooking] = await tx
+					.insert(bookings)
+					.values(bookingData)
+					.returning();
 
 				// Create passenger-booking relationships and assign seats
 				for (let i = 0; i < createdPassengers.length; i++) {
@@ -73,17 +92,24 @@ export class BookingsService {
 						seatId: seatId,
 					};
 
-					await tx.insert(bookingPassengers).values(bookingPassengerData).returning();
+					await tx
+						.insert(bookingPassengers)
+						.values(bookingPassengerData)
+						.returning();
 
 					// Mark seat as unavailable
-					await tx.update(seats)
+					await tx
+						.update(seats)
 						.set({ isAvailable: false })
 						.where(eq(seats.id, seatId));
 				}
 
 				// Update flight available seats count
-				await tx.update(flights)
-					.set({ availableSeats: flight.availableSeats - createdPassengers.length })
+				await tx
+					.update(flights)
+					.set({
+						availableSeats: flight.availableSeats - createdPassengers.length,
+					})
 					.where(eq(flights.id, flight.id));
 
 				return newBooking;
@@ -91,9 +117,9 @@ export class BookingsService {
 
 			return ok({
 				bookingId: bookingResult.id,
-				pnr: `PNR${bookingResult.id.toString().padStart(6, '0')}`,
+				pnr: `PNR${bookingResult.id.toString().padStart(6, "0")}`,
 				status: bookingResult.bookingStatus as BookingStatus,
-				totalAmount: Number(bookingResult.amountPaid),
+				totalAmount: totalAmount,
 				passengersCount: passengers.length,
 			});
 		} catch (error) {
@@ -125,7 +151,10 @@ export class BookingsService {
 		}
 	}
 
-	async cancelBooking(bookingId: number, userId: string): Promise<Result<boolean>> {
+	async cancelBooking(
+		bookingId: number,
+		userId: string,
+	): Promise<Result<boolean>> {
 		try {
 			const booking = await bookingsRepository.findBookingById(bookingId);
 			if (!booking) {
@@ -133,7 +162,9 @@ export class BookingsService {
 			}
 
 			if (booking.userId !== userId) {
-				return err(errors.unauthorized("Not authorized to cancel this booking"));
+				return err(
+					errors.unauthorized("Not authorized to cancel this booking"),
+				);
 			}
 
 			if (booking.bookingStatus === "confirmed") {

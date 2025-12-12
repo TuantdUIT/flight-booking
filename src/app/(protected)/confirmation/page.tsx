@@ -125,9 +125,11 @@ export default function ConfirmationPage() {
 									<div className="flex flex-col items-center">
 										{/* Departure Time - Centered above plane */}
 										<div className="text-center mb-3">
-											<span className="text-2xl font-bold text-foreground">{currentBooking.flight.departureTime}</span>
+											<span className="text-2xl font-bold text-foreground">
+												{currentBooking.flight.departureTime}
+											</span>
 										</div>
-										
+
 										{/* Plane Icon and Path */}
 										<div className="relative flex items-center">
 											<div className="w-32 border-t-2 border-dashed border-muted-foreground/40"></div>
@@ -135,11 +137,13 @@ export default function ConfirmationPage() {
 												<Plane className="w-6 h-6 text-primary rotate-90" />
 											</div>
 										</div>
-										
+
 										{/* Direct Label */}
 										<div className="flex items-center gap-1 mt-3">
 											<Clock className="w-3 h-3 text-muted-foreground" />
-											<span className="text-xs text-muted-foreground">Direct</span>
+											<span className="text-xs text-muted-foreground">
+												Direct
+											</span>
 										</div>
 									</div>
 
@@ -159,17 +163,24 @@ export default function ConfirmationPage() {
 										<p className="text-sm font-medium text-foreground">
 											{(() => {
 												// Use flight departure date from searchParams if available, otherwise use createdAt
-												const dateString = searchParams?.departureDate || currentBooking.createdAt;
+												const dateString =
+													searchParams?.departureDate ||
+													currentBooking.createdAt;
 												const date = new Date(dateString);
-												if (isNaN(date.getTime())) return 'N/A';
-												const day = String(date.getDate()).padStart(2, '0');
-												const month = String(date.getMonth() + 1).padStart(2, '0');
+												if (isNaN(date.getTime())) return "N/A";
+												const day = String(date.getDate()).padStart(2, "0");
+												const month = String(date.getMonth() + 1).padStart(
+													2,
+													"0",
+												);
 												const year = date.getFullYear();
 												return `${day}/${month}/${year}`;
 											})()}
 										</p>
 									</div>
-									<p className="text-xs text-muted-foreground mt-1">Departure Date</p>
+									<p className="text-xs text-muted-foreground mt-1">
+										Departure Date
+									</p>
 								</div>
 							</div>
 						</div>
@@ -210,7 +221,10 @@ export default function ConfirmationPage() {
 								Total Paid
 							</span>
 							<span className="text-2xl font-bold text-primary">
-								{new Intl.NumberFormat('vi-VN').format(currentBooking.totalPrice)} ₫
+								{new Intl.NumberFormat("vi-VN").format(
+									currentBooking.totalPrice,
+								)}{" "}
+								₫
 							</span>
 						</div>
 					</div>

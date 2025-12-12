@@ -35,9 +35,7 @@ export function FlightCard({ flight, onSelect, isSelected }: FlightCardProps) {
 				<div className="flex flex-1 items-center justify-center">
 					{/* Origin - right aligned */}
 					<div className="flex-1 text-right pr-4">
-						<p className="text-sm text-muted-foreground">
-							{flight.origin}
-						</p>
+						<p className="text-sm text-muted-foreground">{flight.origin}</p>
 					</div>
 
 					{/* Center - Time and Flight path indicator */}
