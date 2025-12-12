@@ -7,7 +7,7 @@ import { LoadingSpinner } from "@/core/components/ui/loading-spinner";
 import { PriceBreakdownCard } from "@/core/components/ui/price-breakdown-card";
 import { useBookingStore } from "@/core/lib/store";
 import type { Passenger } from "@/core/types";
-import { ArrowLeft, ArrowRight, Clock, Plane } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar, Clock, Plane } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -187,46 +187,63 @@ export default function PassengersPage() {
 									</div>
 
 									<div className="border-t pt-4 space-y-4">
-										{/* Time centered at top */}
-										<div className="text-center">
-											<p className="text-3xl font-bold text-foreground">
-												{selectedFlight.departureTime}
-											</p>
-										</div>
-
-										{/* Origin, Flight Path, Destination */}
-										<div className="flex justify-between items-center">
-											<div className="text-left">
-												<p className="text-sm text-muted-foreground">
+										{/* Route Information */}
+										<div className="flex justify-center items-center gap-12">
+											{/* Origin */}
+											<div className="text-center">
+												<p className="text-xs text-muted-foreground mb-2">From</p>
+												<p className="text-sm font-medium text-foreground">
 													{selectedFlight.origin}
 												</p>
 											</div>
-											<div className="flex flex-col items-center px-4">
-												<div className="w-32 border-t-2 border-dashed border-muted-foreground/40 relative mb-1">
-													<Plane className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-primary rotate-90" />
+
+											{/* Flight Path - Centered */}
+											<div className="flex flex-col items-center">
+												{/* Departure Time - Centered above plane */}
+												<div className="text-center mb-3">
+													<span className="text-2xl font-bold text-foreground">{selectedFlight.departureTime}</span>
 												</div>
-												<span className="text-xs text-muted-foreground">
-													Direct
-												</span>
+												
+												{/* Plane Icon and Path */}
+												<div className="relative flex items-center">
+													<div className="w-32 border-t-2 border-dashed border-muted-foreground/40"></div>
+													<div className="absolute left-1/2 -translate-x-1/2">
+														<Plane className="w-6 h-6 text-primary rotate-90" />
+													</div>
+												</div>
+												
+												{/* Direct Label */}
+												<div className="flex items-center gap-1 mt-3">
+													<Clock className="w-3 h-3 text-muted-foreground" />
+													<span className="text-xs text-muted-foreground">Direct</span>
+												</div>
 											</div>
-											<div className="text-right">
-												<p className="text-sm text-muted-foreground">
+
+											{/* Destination */}
+											<div className="text-center">
+												<p className="text-xs text-muted-foreground mb-2">To</p>
+												<p className="text-sm font-medium text-foreground">
 													{selectedFlight.destination}
 												</p>
 											</div>
 										</div>
 
-										{/* Date centered below flight path */}
-										<div className="text-center">
-											<p className="text-sm text-muted-foreground">
-												{(() => {
-													const date = new Date(searchParams.departureDate);
-													const day = String(date.getDate()).padStart(2, '0');
-													const month = String(date.getMonth() + 1).padStart(2, '0');
-													const year = date.getFullYear();
-													return `${day}/${month}/${year}`;
-												})()}
-											</p>
+										{/* Date centered below */}
+										<div className="text-center border-t pt-3">
+											<div className="flex items-center justify-center gap-2">
+												<Calendar className="w-4 h-4 text-muted-foreground" />
+												<p className="text-sm font-medium text-foreground">
+													{(() => {
+														const date = new Date(searchParams.departureDate);
+														if (isNaN(date.getTime())) return 'N/A';
+														const day = String(date.getDate()).padStart(2, '0');
+														const month = String(date.getMonth() + 1).padStart(2, '0');
+														const year = date.getFullYear();
+														return `${day}/${month}/${year}`;
+													})()}
+												</p>
+											</div>
+											<p className="text-xs text-muted-foreground mt-1">Departure Date</p>
 										</div>
 									</div>
 								</div>

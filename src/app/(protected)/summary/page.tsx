@@ -115,39 +115,61 @@ export default function SummaryPage() {
 										</div>
 									</div>
 
-									<div className="flex items-center gap-8">
+									<div className="flex items-center justify-center gap-12">
+										{/* Origin */}
 										<div className="text-center">
-											<p className="text-2xl font-bold text-foreground">
-												{selectedFlight.departureTime}
-											</p>
-											<p className="text-sm text-muted-foreground">
+											<p className="text-xs text-muted-foreground mb-2">From</p>
+											<p className="text-sm font-medium text-foreground">
 												{selectedFlight.origin}
 											</p>
 										</div>
 
+										{/* Flight Path - Centered */}
 										<div className="flex flex-col items-center">
-											<Clock className="h-4 w-4 text-muted-foreground" />
-											<span className="text-sm text-muted-foreground">
-												{selectedFlight.duration}
-											</span>
-											<div className="w-20 border-t border-dashed border-muted-foreground/40 mt-1" />
+											{/* Departure Time - Centered above plane */}
+											<div className="text-center mb-3">
+												<span className="text-2xl font-bold text-foreground">{selectedFlight.departureTime}</span>
+											</div>
+											
+											{/* Plane Icon and Path */}
+											<div className="relative flex items-center">
+												<div className="w-32 border-t-2 border-dashed border-muted-foreground/40"></div>
+												<div className="absolute left-1/2 -translate-x-1/2">
+													<Plane className="w-6 h-6 text-primary rotate-90" />
+												</div>
+											</div>
+											
+											{/* Direct Label */}
+											<div className="flex items-center gap-1 mt-3">
+												<Clock className="w-3 h-3 text-muted-foreground" />
+												<span className="text-xs text-muted-foreground">Direct</span>
+											</div>
 										</div>
 
+										{/* Destination */}
 										<div className="text-center">
-											<p className="text-2xl font-bold text-foreground">
-												{selectedFlight.arrivalTime}
-											</p>
-											<p className="text-sm text-muted-foreground">
+											<p className="text-xs text-muted-foreground mb-2">To</p>
+											<p className="text-sm font-medium text-foreground">
 												{selectedFlight.destination}
 											</p>
 										</div>
 									</div>
 
 									<div className="text-center md:text-right">
-										<p className="text-sm text-muted-foreground">Date</p>
-										<p className="font-medium text-foreground">
-											{searchParams.departureDate}
-										</p>
+										<div className="flex items-center gap-2 text-muted-foreground mb-1">
+											<Calendar className="w-4 h-4" />
+											<p className="text-sm font-medium text-foreground">
+												{(() => {
+													const date = new Date(searchParams.departureDate);
+													if (isNaN(date.getTime())) return 'N/A';
+													const day = String(date.getDate()).padStart(2, '0');
+													const month = String(date.getMonth() + 1).padStart(2, '0');
+													const year = date.getFullYear();
+													return `${day}/${month}/${year}`;
+												})()}
+											</p>
+										</div>
+										<p className="text-xs text-muted-foreground">Departure Date</p>
 									</div>
 								</div>
 							</div>
