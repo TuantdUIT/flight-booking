@@ -7,11 +7,12 @@ import { LoadingSpinner } from "@/core/components/ui/loading-spinner";
 import { PriceBreakdownCard } from "@/core/components/ui/price-breakdown-card";
 import { SelectField } from "@/core/components/ui/select-field";
 import { useBookingStore } from "@/core/lib/store";
-import type { Booking } from "@/core/types";
+import { useCreateBookingMutation } from "@/features/bookings/api";
 import { ArrowLeft, CreditCard, Lock, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type * as React from "react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface PaymentForm {
 	paymentMethod: string;
@@ -33,6 +34,9 @@ export default function PaymentPage() {
 	const { selectedFlight, searchParams, passengers, setCurrentBooking } =
 		useBookingStore();
 
+	// Use the booking mutation hook
+	const createBooking = useCreateBookingMutation();
+
 	const [form, setForm] = useState<PaymentForm>({
 		paymentMethod: "credit-card",
 		cardholderName: "",
@@ -41,7 +45,6 @@ export default function PaymentPage() {
 		cvv: "",
 	});
 	const [errors, setErrors] = useState<PaymentErrors>({});
-	const [isProcessing, setIsProcessing] = useState(false);
 	const [paymentError, setPaymentError] = useState("");
 
 	useEffect(() => {
@@ -105,36 +108,79 @@ export default function PaymentPage() {
 		setPaymentError("");
 
 		if (!validatePayment()) return;
-
-		setIsProcessing(true);
-
-		await new Promise((resolve) => setTimeout(resolve, 2500));
-
-		// 10% chance of payment failure for demo
-		if (Math.random() < 0.1) {
-			setPaymentError("Payment failed. Please try again.");
-			setIsProcessing(false);
+		if (!selectedFlight || !searchParams) {
+			toast.error("Missing flight or search information");
 			return;
 		}
 
-		// Generate booking
-		const baseFare = selectedFlight!.price * searchParams!.passengers;
-		const taxes = Math.round(baseFare * 0.12);
-		const serviceFee = 15;
-		const total = baseFare + taxes + serviceFee;
+		try {
+			// Prepare booking data with real payment information
+			const bookingData = {
+				flightId: selectedFlight.id,
+				passengers: passengers.map((p) => ({
+					firstName: p.fullName.split(" ")[0] || p.fullName,
+					lastName: p.fullName.split(" ").slice(1).join(" ") || p.fullName,
+					email: p.email,
+					phone: p.phoneNumber,
+					dob: p.dateOfBirth,
+				})),
+				paymentInfo: {
+					cardNumber: form.cardNumber.replace(/\s/g, ""), // Remove spaces
+					expiryDate: form.expirationDate,
+					cvv: form.cvv,
+					cardholderName: form.cardholderName,
+				},
+			};
 
-		const booking: Booking = {
-			id: Math.random().toString(36).substr(2, 9),
-			pnr: Math.random().toString(36).substr(2, 6).toUpperCase(),
-			flight: selectedFlight!,
-			passengers: passengers,
-			totalPrice: total,
-			status: "confirmed",
-			createdAt: new Date().toISOString().split("T")[0],
-		};
+			// Call the mutation to create booking with paid status
+			const result = await createBooking.mutateAsync(bookingData);
 
-		setCurrentBooking(booking);
-		router.push("/confirmation");
+			// Show success message
+			toast.success(`Payment successful! PNR: ${result.pnr}`);
+
+			// Calculate total for display
+			const baseFare = selectedFlight.price * searchParams.passengers;
+			const taxes = Math.round(baseFare * 0.12);
+			const serviceFee = 15;
+			const total = baseFare + taxes + serviceFee;
+
+			// Create booking object for confirmation page
+			const booking = {
+				id: result.bookingId.toString(),
+				pnr: result.pnr,
+				flight: selectedFlight,
+				passengers: passengers,
+				totalPrice: total,
+				status:
+					result.status === "confirmed"
+						? ("confirmed" as const)
+						: ("pending" as const),
+				createdAt: new Date().toISOString().split("T")[0],
+			};
+
+			setCurrentBooking(booking);
+			router.push("/confirmation");
+		} catch (error) {
+			console.error("Payment error:", error);
+
+			// Handle specific error types
+			if (error instanceof Error) {
+				if (error.message.includes("Not enough available seats")) {
+					setPaymentError("Seats are no longer available");
+					toast.error("Seats are no longer available");
+				} else if (error.message.includes("Flight not found")) {
+					setPaymentError("Flight is no longer available");
+					toast.error("Flight is no longer available");
+					setTimeout(() => router.push("/"), 2000);
+				} else {
+					setPaymentError(error.message || "Payment failed. Please try again.");
+					toast.error(error.message || "Payment failed. Please try again.");
+				}
+			} else {
+				setPaymentError("An unexpected error occurred. Please try again.");
+				toast.error("An unexpected error occurred. Please try again.");
+			}
+		}
 	};
 
 	if (!selectedFlight || !searchParams) {
@@ -208,7 +254,7 @@ export default function PaymentPage() {
 											}))
 										}
 										error={errors.cardholderName}
-										disabled={isProcessing}
+										disabled={createBooking.isPending}
 									/>
 
 									<InputField
@@ -224,7 +270,7 @@ export default function PaymentPage() {
 										error={errors.cardNumber}
 										maxLength={19}
 										icon={<CreditCard className="h-4 w-4" />}
-										disabled={isProcessing}
+										disabled={createBooking.isPending}
 									/>
 
 									<div className="grid gap-4 md:grid-cols-2">
@@ -240,7 +286,7 @@ export default function PaymentPage() {
 											}
 											error={errors.expirationDate}
 											maxLength={5}
-											disabled={isProcessing}
+											disabled={createBooking.isPending}
 										/>
 
 										<InputField
@@ -257,7 +303,7 @@ export default function PaymentPage() {
 											error={errors.cvv}
 											maxLength={4}
 											icon={<Lock className="h-4 w-4" />}
-											disabled={isProcessing}
+											disabled={createBooking.isPending}
 										/>
 									</div>
 
@@ -265,9 +311,9 @@ export default function PaymentPage() {
 										type="submit"
 										className="w-full"
 										size="lg"
-										disabled={isProcessing}
+										disabled={createBooking.isPending}
 									>
-										{isProcessing ? (
+										{createBooking.isPending ? (
 											<div className="flex items-center gap-2">
 												<LoadingSpinner size="sm" />
 												Processing Payment...

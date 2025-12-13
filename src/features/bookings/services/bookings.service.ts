@@ -53,6 +53,7 @@ export class BookingsService {
 					name: `${passenger.firstName} ${passenger.lastName}`,
 					email: passenger.email,
 					phoneNumber: passenger.phone,
+					dob: passenger.dob || null, // Include date of birth if provided
 				};
 
 				const newPassenger =
@@ -66,7 +67,18 @@ export class BookingsService {
 			const totalAmount = baseFare + taxes;
 
 			// Generate unique PNR before transaction
+
+			// Generate PNR (Passenger Name Record)
+			// Format: PNR + timestamp + random string
+			const timestamp = Date.now().toString(36).toUpperCase();
+			const random = Math.random().toString(36).substring(2, 5).toUpperCase();
 			const pnr = await generateUniquePNR(db);
+
+			// Determine payment status based on whether real payment info was provided
+			// If cardholderName is present, it means user went through payment page
+			const isPaid = paymentInfo?.cardholderName ? true : false;
+			const paymentStatus = isPaid ? ("paid" as const) : ("pending" as const);
+			const bookingStatus = isPaid ? ("confirmed" as const) : ("pending" as const);
 
 			// Use database transaction for booking creation
 			const bookingResult = await db.transaction(async (tx) => {
@@ -77,8 +89,8 @@ export class BookingsService {
 					airlineId: flight.airlineId,
 					userId: userId,
 					amountPaid: totalAmount.toString(),
-					paymentStatus: "paid" as const,
-					bookingStatus: "confirmed" as const,
+					paymentStatus: paymentStatus,
+					bookingStatus: bookingStatus,
 				};
 
 				const [newBooking] = await tx
@@ -126,7 +138,7 @@ export class BookingsService {
 
 			return ok({
 				bookingId: bookingResult.id,
-				pnr: pnr,
+				pnr: `PNR${bookingResult.id.toString().padStart(6, "0")}`,
 				status: bookingResult.bookingStatus as BookingStatus,
 				totalAmount: totalAmount,
 				passengersCount: passengers.length,
