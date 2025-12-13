@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/core/components/ui/button";
 import {
 	Card,
@@ -18,14 +17,15 @@ import {
 	SelectValue,
 } from "@/core/components/ui/select";
 import { Switch } from "@/core/components/ui/switch";
+import type { Seat } from "@/core/types/seat";
+import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import {
 	useCreateSeat,
-	useUpdateSeat,
 	useDeleteSeat,
-} from "../hooks/use-seats";
-import type { Seat } from "@/core/types/seat";
-import { Pencil, Trash2, Plus, X } from "lucide-react";
-import { toast } from "sonner";
+	useUpdateSeat,
+} from "../apis/mutations";
 
 interface AdminPanelProps {
 	flightId: number;

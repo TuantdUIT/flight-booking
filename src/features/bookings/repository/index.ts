@@ -158,4 +158,64 @@ export const bookingsRepository = {
 			.from(bookings)
 			.where(eq(bookings.bookingStatus, status));
 	},
+
+	// Admin methods
+	findBookingsWithDetails: async (limit: number = 50, offset: number = 0, status?: string | null) => {
+		const baseQuery = db
+			.select({
+				id: bookings.id,
+				pnr: bookings.pnr,
+				bookingStatus: bookings.bookingStatus,
+				paymentStatus: bookings.paymentStatus,
+				amountPaid: bookings.amountPaid,
+				userId: bookings.userId,
+				flightId: bookings.flightId,
+				airlineId: bookings.airlineId,
+				createdAt: bookings.createdAt,
+				updatedAt: bookings.updatedAt,
+				// User details
+				userEmail: sql<string>`users.email`,
+				userName: sql<string>`users.name`,
+				// Flight details
+				flightNumber: sql<string>`CONCAT(airlines.name, '-', flights.id)`,
+				airlineName: sql<string>`airlines.name`,
+				origin: sql<string>`flights.origin`,
+				destination: sql<string>`flights.destination`,
+				flightDate: sql<Date>`flights.date`,
+				// Passenger count
+				passengerCount: sql<number>`COUNT(booking_passengers.passenger_id)`,
+			})
+			.from(bookings)
+			.leftJoin(sql`users`, eq(bookings.userId, sql`users.id`))
+			.leftJoin(sql`flights`, eq(bookings.flightId, sql`flights.id`))
+			.leftJoin(sql`airlines`, eq(bookings.airlineId, sql`airlines.id`))
+			.leftJoin(sql`booking_passengers`, eq(bookings.id, sql`booking_passengers.booking_id`))
+			.groupBy(
+				bookings.id,
+				bookings.pnr,
+				bookings.bookingStatus,
+				bookings.paymentStatus,
+				bookings.amountPaid,
+				bookings.userId,
+				bookings.flightId,
+				bookings.airlineId,
+				bookings.createdAt,
+				bookings.updatedAt,
+				sql`users.email`,
+				sql`users.name`,
+				sql`flights.origin`,
+				sql`flights.destination`,
+				sql`flights.date`,
+				sql`airlines.name`
+			)
+			.orderBy(bookings.createdAt)
+			.limit(limit)
+			.offset(offset);
+
+		if (status && status !== "all") {
+			return await baseQuery.where(eq(bookings.bookingStatus, status as any));
+		}
+
+		return await baseQuery;
+	},
 };

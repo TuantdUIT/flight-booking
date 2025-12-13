@@ -1,4 +1,4 @@
-import httpClient from "@/core/lib/http";
+import { httpClient } from "@/core/lib/http";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CreateBookingResult } from "../types";
 import type { CreateBookingSchema } from "../validations/create-booking";

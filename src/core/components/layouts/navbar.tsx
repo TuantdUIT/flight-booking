@@ -21,10 +21,18 @@ export function Navbar() {
 		router.push("/auth/signin");
 	};
 
+	const isAdmin = user?.role === "admin";
+
 	const navLinks = isAuthenticated
 		? [
 				{ href: "/", label: "Home" },
 				{ href: "/my-bookings", label: "My Bookings" },
+			]
+		: [];
+
+	const adminLinks = isAdmin
+		? [
+				{ href: "/admin/audit", label: "Audit Logs" },
 			]
 		: [];
 
@@ -55,6 +63,27 @@ export function Navbar() {
 								{link.label}
 							</Link>
 						))}
+
+						{/* Admin Links */}
+						{adminLinks.length > 0 && (
+							<>
+								<div className="h-4 w-px bg-border" />
+								{adminLinks.map((link) => (
+									<Link
+										key={link.href}
+										href={link.href}
+										className={cn(
+											"text-sm font-medium transition-colors hover:text-primary",
+											pathname === link.href
+												? "text-primary"
+												: "text-muted-foreground",
+										)}
+									>
+										{link.label}
+									</Link>
+								))}
+							</>
+						)}
 
 						{isAuthenticated ? (
 							<div className="flex items-center gap-4">
@@ -110,6 +139,32 @@ export function Navbar() {
 								{link.label}
 							</Link>
 						))}
+
+						{/* Admin Links */}
+						{adminLinks.length > 0 && (
+							<>
+								<div className="border-t pt-4">
+									<p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+										Admin
+									</p>
+									{adminLinks.map((link) => (
+										<Link
+											key={link.href}
+											href={link.href}
+											className={cn(
+												"block text-sm font-medium transition-colors hover:text-primary py-2",
+												pathname === link.href
+													? "text-primary"
+													: "text-muted-foreground",
+											)}
+											onClick={() => setMobileMenuOpen(false)}
+										>
+											{link.label}
+										</Link>
+									))}
+								</div>
+							</>
+						)}
 
 						{isAuthenticated ? (
 							<div className="space-y-3 pt-2 border-t">

@@ -319,18 +319,176 @@ function getUser(id: string): Result<User> {
 }
 ```
 
+### Flight Booking System Examples
+
+#### Result Pattern in Action
+
+**Flight Search Example:**
+```typescript
+// src/features/flights/services/flights.service.ts
+async searchFlights(searchParams: FlightSearchParams): Promise<Result<Flight[]>> {
+  // Validate search parameters
+  const validation = flightSearchSchema.safeParse(searchParams);
+  if (!validation.success) {
+    return Result.failed(errors.validationError("Invalid search parameters", validation.error));
+  }
+
+  // Check for valid date ranges
+  if (searchParams.returnDate && searchParams.returnDate <= searchParams.departureDate) {
+    return Result.failed(errors.validationError("Return date must be after departure date"));
+  }
+
+  try {
+    const flights = await flightsRepository.search(validation.data);
+    return Result.ok(flights);
+  } catch (error) {
+    return Result.failed(errors.internalError("Failed to search flights"));
+  }
+}
+```
+
+**Booking Creation with Safety:**
+```typescript
+// src/features/bookings/services/bookings.service.ts
+async createBooking(bookingData: CreateBookingData): Promise<Result<Booking>> {
+  // Validate booking data
+  const validation = createBookingSchema.safeParse(bookingData);
+  if (!validation.success) {
+    return Result.failed(errors.validationError("Invalid booking data", validation.error));
+  }
+
+  // Business rule: Check seat availability
+  const seatAvailable = await seatsRepository.isAvailable(bookingData.seatId);
+  if (!seatAvailable) {
+    return Result.failed(errors.conflict("Seat is no longer available"));
+  }
+
+  // Business rule: Check passenger limit
+  const passengerCount = await passengersRepository.countByBooking(bookingData.bookingId);
+  if (passengerCount >= 9) {
+    return Result.failed(errors.validationError("Maximum 9 passengers per booking"));
+  }
+
+  // Use atomic operation for data consistency
+  try {
+    const booking = await atomic(async (tx) => {
+      // Reserve seat
+      await seatsRepository.reserve(bookingData.seatId, { transaction: tx });
+
+      // Create booking record
+      return await bookingsRepository.create(validation.data, { transaction: tx });
+    });
+
+    return Result.ok(booking);
+  } catch (error) {
+    return Result.failed(errors.internalError("Failed to create booking"));
+  }
+}
+```
+
+#### Repository Pattern Implementation
+
+**Flight Repository:**
+```typescript
+// src/features/flights/repository/index.ts
+export const flightsRepository = {
+  async search(params: FlightSearchParams) {
+    return await db
+      .select()
+      .from(flights)
+      .where(and(
+        eq(flights.origin, params.origin),
+        eq(flights.destination, params.destination),
+        gte(flights.departureDate, params.departureDate)
+      ))
+      .limit(50);
+  },
+
+  async findById(id: number) {
+    const result = await db
+      .select()
+      .from(flights)
+      .where(eq(flights.id, id))
+      .limit(1);
+
+    return result[0] || null;
+  },
+
+  async create(flightData: CreateFlightData) {
+    return await db
+      .insert(flights)
+      .values(flightData)
+      .returning();
+  }
+};
+```
+
+#### Database Safety in Practice
+
+**Seat Reservation with Rollback:**
+```typescript
+// Atomic seat reservation during booking
+await atomic(async (tx) => {
+  // Step 1: Check and reserve seat
+  const seat = await tx
+    .select()
+    .from(seats)
+    .where(and(eq(seats.id, seatId), eq(seats.isAvailable, true)))
+    .limit(1);
+
+  if (!seat[0]) {
+    throw new Error("Seat not available");
+  }
+
+  await tx
+    .update(seats)
+    .set({ isAvailable: false, reservedAt: new Date() })
+    .where(eq(seats.id, seatId));
+
+  // Step 2: Create booking record
+  await tx
+    .insert(bookings)
+    .values({
+      userId,
+      flightId,
+      seatId,
+      status: 'confirmed',
+      bookedAt: new Date()
+    });
+
+  // Step 3: Update passenger information
+  await tx
+    .update(passengers)
+    .set({ bookingId: bookingId })
+    .where(eq(passengers.id, passengerId));
+
+  // If any step fails, everything rolls back automatically
+});
+```
+
 ## 🎓 Learning Takeaway
 
 **Each pattern teaches you something important:**
 
-- **`Result<T, E>`**: Forces you to think about what can go wrong
-- **Repository Pattern**: Separates "what to do" from "how to store it"
-- **Atomic Operations**: Makes your app reliable even when things break
+- **`Result<T, E>`**: Forces you to think about what can go wrong and handle it explicitly
+- **Repository Pattern**: Separates "what to do" from "how to store it" for better maintainability
+- **Atomic Operations**: Makes your app reliable even when things break, preventing data corruption
 
-These are the same patterns used by professional developers at companies like Google, Facebook, and Stripe. You're learning enterprise-level software development! 🚀
+### Real-World Impact
+
+These patterns are used by billion-dollar companies:
+- **Stripe** uses Result patterns for payment processing reliability
+- **Airbnb** uses atomic operations for booking consistency
+- **Uber** uses repository patterns for scalable data management
+
+**In this Flight Booking System, you'll see:**
+- ✅ Safe flight bookings that never leave users in inconsistent states
+- ✅ Reliable seat reservations that handle network failures gracefully
+- ✅ Clean code organization that scales as the project grows
 
 ## Next Steps
 
 Now that you understand the core concepts, explore:
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - How these concepts are organized in the project
 - **[LIBRARIES.md](LIBRARIES.md)** - Tools that make these patterns easy to use
+- **[README.md](README.md)** - Complete project overview and setup

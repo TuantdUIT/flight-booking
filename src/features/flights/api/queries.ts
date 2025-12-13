@@ -1,4 +1,4 @@
-import httpClient from "@/core/lib/http";
+import { httpClient } from "@/core/lib/http";
 import type { Flight } from "@/core/types";
 import { useQuery } from "@tanstack/react-query";
 

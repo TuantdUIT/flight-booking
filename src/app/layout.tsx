@@ -1,11 +1,16 @@
-import type React from "react";
+import { QueryProvider } from "@/core/lib/providers/query-provider";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
-import { QueryProvider } from "@/core/lib/providers/query-provider";
+import type React from "react";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+// Load Inter with all necessary subsets and weights for the design system
+const inter = Inter({
+	subsets: ["latin"],
+	variable: "--font-sans",
+	display: "swap",
+});
 
 export const metadata: Metadata = {
 	title: "UniAir - University Airline Booking",
@@ -38,7 +43,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body className={`${inter.className} antialiased`}>
+			<body className={`${inter.variable} font-sans antialiased bg-gray-50 text-gray-900`}>
 				<QueryProvider>{children}</QueryProvider>
 				<Analytics />
 			</body>

@@ -1,4 +1,4 @@
-import httpClient from "@/core/lib/http";
+import { httpClient } from "@/core/lib/http";
 import { useQuery } from "@tanstack/react-query";
 import type { BookingSummary } from "../types";
 

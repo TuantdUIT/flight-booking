@@ -1,4 +1,6 @@
 import { Result, err, errors, ok } from "@/core/lib/http/result";
+import { generateUniquePNR } from "@/core/utils/pnr";
+import { generateUniqueETicket } from "@/core/utils/ticket";
 import { flightsRepository } from "@/features/flights/repository";
 import { passengersRepository } from "@/features/passengers/repository";
 import { ticketsRepository } from "@/features/tickets/repository";
@@ -7,8 +9,7 @@ import {
 	bookingPassengers,
 	bookings,
 	flights,
-	seats,
-	passengers as passengersTable,
+	seats
 } from "@/infrastructure/db/schema";
 import { eq } from "drizzle-orm";
 import { bookingsRepository } from "../repository";
@@ -64,10 +65,14 @@ export class BookingsService {
 			const taxes = Number(flight.priceTax) * passengers.length;
 			const totalAmount = baseFare + taxes;
 
+			// Generate unique PNR before transaction
+			const pnr = await generateUniquePNR(db);
+
 			// Use database transaction for booking creation
 			const bookingResult = await db.transaction(async (tx) => {
 				// Create booking
 				const bookingData = {
+					pnr: pnr,
 					flightId: flight.id,
 					airlineId: flight.airlineId,
 					userId: userId,
@@ -86,10 +91,14 @@ export class BookingsService {
 					const passengerId = createdPassengers[i].id;
 					const seatId = availableSeats[i].id;
 
+					// Generate unique e-ticket number for this passenger
+					const eTicketNumber = await generateUniqueETicket(tx);
+
 					const bookingPassengerData = {
 						bookingId: newBooking.id,
 						passengerId: passengerId,
 						seatId: seatId,
+						eTicketNumber: eTicketNumber,
 					};
 
 					await tx
@@ -117,7 +126,7 @@ export class BookingsService {
 
 			return ok({
 				bookingId: bookingResult.id,
-				pnr: `PNR${bookingResult.id.toString().padStart(6, "0")}`,
+				pnr: pnr,
 				status: bookingResult.bookingStatus as BookingStatus,
 				totalAmount: totalAmount,
 				passengersCount: passengers.length,

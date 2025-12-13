@@ -31,7 +31,43 @@ This guide covers how to work effectively on the Flight Booking System project, 
 
 ## Development Workflow
 
-### Adding New Features
+### Flight Booking System Feature Development
+
+#### Example: Adding Airport Search Feature
+
+1. **Plan the feature**
+   - **Requirements**: Users need to search airports by name/code for flight booking
+   - **Feature module**: Belongs to `flights` feature (airport data supports flight search)
+   - **Database impact**: May need new indexes on airport names/codes
+
+2. **Create the feature module structure**
+   ```bash
+   # Airport search might extend existing flights feature
+   # Add to existing src/features/flights/ structure
+   touch src/features/flights/components/airport-search.tsx
+   touch src/features/flights/hooks/use-airport-search.ts
+   touch src/features/flights/services/airport.service.ts
+   ```
+
+3. **Implement from inside out**
+   - **Types & Validation**: Define airport search schema with Zod
+   - **Service Layer**: Implement airport search with Result<T,E> pattern
+   - **Repository**: Add search methods to airports repository
+   - **UI Components**: Create searchable dropdown component
+   - **API Routes**: Add `/api/airports/search` endpoint
+   - **Integration**: Connect to flight search form
+
+4. **Test thoroughly**
+   - **Unit tests**: Test airport service search logic
+   - **Integration**: Test API endpoint returns correct results
+   - **UI tests**: Test search dropdown functionality
+   - **Error scenarios**: Test with invalid airport codes, network failures
+
+5. **Update documentation**
+   - Add airport search to README.md features
+   - Document new API endpoint in docs/
+
+### Adding New Features (General Process)
 
 1. **Plan the feature**
    - Understand the requirements and user story
@@ -40,15 +76,15 @@ This guide covers how to work effectively on the Flight Booking System project, 
 
 2. **Create the feature module structure**
    ```bash
-   mkdir -p src/features/new-feature/{components,hooks,services,validations}
+   mkdir -p src/features/new-feature/{components,hooks,services,validations,repository}
    ```
 
 3. **Implement from inside out**
-   - Start with types and validation schemas
-   - Implement service layer with business logic
-   - Create repository methods if needed
-   - Build UI components
-   - Add API routes
+   - Start with types and validation schemas (Zod)
+   - Implement service layer with business logic (Result<T,E>)
+   - Create repository methods if needed (Drizzle ORM)
+   - Build UI components (shadcn/ui)
+   - Add API routes (Next.js App Router)
    - Connect everything together
 
 4. **Test thoroughly**
@@ -255,6 +291,212 @@ export function ExampleCard({ title, description, onClick }: ExampleCardProps) {
         </CardContent>
       )}
     </Card>
+  );
+}
+```
+
+### Flight Booking System Specific Patterns
+
+#### Creating a Booking API Route
+
+```typescript
+// src/app/api/bookings/route.ts
+import { NextRequest } from 'next/server';
+import { BookingsService } from '@/features/bookings/services/bookings.service';
+import { toJsonResponse } from '@/core/lib/http/result';
+import { auth } from '@/core/lib/auth/server';
+
+export async function POST(request: NextRequest) {
+  try {
+    // Authenticate user
+    const session = await auth();
+    if (!session?.user?.id) {
+      return new Response(
+        toJsonResponse(Result.failed(errors.unauthorized("Authentication required"))).body,
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const result = await BookingsService.createBooking({
+      ...body,
+      userId: session.user.id
+    });
+
+    return new Response(
+      toJsonResponse(result, { requestId: request.headers.get('x-request-id') || 'unknown' }).body,
+      {
+        status: toJsonResponse(result).status,
+        headers: toJsonResponse(result).headers,
+      }
+    );
+  } catch (error) {
+    console.error('Unexpected booking error:', error);
+    return new Response(
+      toJsonResponse(Result.failed(errors.internalError("Failed to process booking"))).body,
+      { status: 500 }
+    );
+  }
+}
+```
+
+#### Creating a Flight Search Component
+
+```typescript
+// src/features/flights/components/flight-search.tsx
+'use client';
+
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { flightSearchSchema } from '../validations/flight-search';
+import { useFlightSearch } from '../hooks/use-flight-search';
+import { Button } from '@/core/components/ui/button';
+import { Input } from '@/core/components/ui/input';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/core/components/ui/form';
+
+interface FlightSearchProps {
+  onSearchResults: (results: Flight[]) => void;
+}
+
+export function FlightSearch({ onSearchResults }: FlightSearchProps) {
+  const [isSearching, setIsSearching] = useState(false);
+  const searchFlights = useFlightSearch();
+
+  const form = useForm<FlightSearchData>({
+    resolver: zodResolver(flightSearchSchema),
+    defaultValues: {
+      origin: '',
+      destination: '',
+      departureDate: '',
+      returnDate: '',
+      passengers: 1
+    }
+  });
+
+  const onSubmit = async (data: FlightSearchData) => {
+    setIsSearching(true);
+    try {
+      const result = await searchFlights.mutateAsync(data);
+      if (result.ok) {
+        onSearchResults(result.value);
+      } else {
+        // Handle error - show toast or error message
+        console.error('Search failed:', result.error);
+      }
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="origin"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>From</FormLabel>
+                <FormControl>
+                  <Input placeholder="Origin airport" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="destination"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>To</FormLabel>
+                <FormControl>
+                  <Input placeholder="Destination airport" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <Button type="submit" disabled={isSearching} className="w-full">
+          {isSearching ? 'Searching...' : 'Search Flights'}
+        </Button>
+      </form>
+    </Form>
+  );
+}
+```
+
+#### Adding a New Airline to the System
+
+```typescript
+// 1. Database Schema Update (src/infrastructure/db/schema.ts)
+export const airlines = table('airlines', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 100 }).notNull(),
+  code: varchar('code', { length: 3 }).notNull().unique(), // IATA code
+  country: varchar('country', { length: 50 }),
+  logo: varchar('logo', { length: 255 }),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// 2. Repository (src/features/flights/repository/airlines.ts)
+export const airlinesRepository = {
+  async create(airlineData: CreateAirlineData) {
+    return await db.insert(airlines).values(airlineData).returning();
+  },
+
+  async findByCode(code: string) {
+    return await db
+      .select()
+      .from(airlines)
+      .where(eq(airlines.code, code))
+      .limit(1);
+  },
+
+  async search(query: string) {
+    return await db
+      .select()
+      .from(airlines)
+      .where(ilike(airlines.name, `%${query}%`))
+      .limit(10);
+  }
+};
+
+// 3. Service (src/features/flights/services/airlines.service.ts)
+export const airlinesService = {
+  async createAirline(data: CreateAirlineData): Promise<Result<Airline>> {
+    const validation = createAirlineSchema.safeParse(data);
+    if (!validation.success) {
+      return Result.failed(errors.validationError("Invalid airline data", validation.error));
+    }
+
+    // Check if airline code already exists
+    const existing = await airlinesRepository.findByCode(data.code);
+    if (existing[0]) {
+      return Result.failed(errors.conflict("Airline code already exists"));
+    }
+
+    try {
+      const airline = await airlinesRepository.create(validation.data);
+      return Result.ok(airline[0]);
+    } catch (error) {
+      return Result.failed(errors.internalError("Failed to create airline"));
+    }
+  }
+};
+
+// 4. API Route (src/app/api/airlines/route.ts)
+export async function POST(request: Request) {
+  const body = await request.json();
+  const result = await airlinesService.createAirline(body);
+
+  return new Response(
+    toJsonResponse(result).body,
+    { status: toJsonResponse(result).status }
   );
 }
 ```

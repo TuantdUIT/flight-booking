@@ -25,6 +25,7 @@ export interface Passenger {
 	passportNumber: string;
 	email: string;
 	phoneNumber: string;
+	eTicketNumber?: string;
 }
 
 export interface Booking {

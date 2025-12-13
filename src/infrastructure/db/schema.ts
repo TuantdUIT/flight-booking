@@ -81,6 +81,9 @@ export const users = pgTable("user", {
 	emailVerified: boolean("email_verified").default(false),
 	image: text("image"),
 	role: text("role").default("user").notNull(),
+	banned: boolean("banned").default(false),
+	banReason: text("ban_reason"),
+	banExpires: timestamp("ban_expires"),
 	createdAt: timestamp("created_at").defaultNow(),
 	updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -116,6 +119,7 @@ export const sessions = pgTable("session", {
 	expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
 	ipAddress: text("ip_address"),
 	userAgent: text("user_agent"),
+	impersonatedBy: text("impersonated_by"),
 	createdAt: timestamp("created_at").defaultNow(),
 	updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -133,6 +137,7 @@ export const verification = pgTable("verification", {
 // 9. Booking
 export const bookings = pgTable("booking", {
 	id: serial("id").primaryKey(),
+	pnr: text("pnr").unique(), // 6-character alphanumeric PNR code
 	flightId: integer("flight_id").references(() => flights.id),
 	airlineId: integer("airline_id").references(() => airlines.id),
 	userId: text("user_id").references(() => users.id),
@@ -149,6 +154,20 @@ export const bookingPassengers = pgTable("booking_passenger", {
 	bookingId: integer("booking_id").references(() => bookings.id),
 	passengerId: integer("passenger_id").references(() => passengers.id),
 	seatId: integer("seat_id").references(() => seats.id),
+	eTicketNumber: text("e_ticket_number").unique(), // E-ticket number (typically 13 digits)
+});
+
+// 10. Audit Log (for admin actions and system events)
+export const auditLogs = pgTable("audit_log", {
+	id: serial("id").primaryKey(),
+	userId: text("user_id").references(() => users.id),
+	action: text("action").notNull(), // 'CREATE', 'UPDATE', 'DELETE', 'LOGIN', etc.
+	entityType: text("entity_type").notNull(), // 'booking', 'flight', 'airline', etc.
+	entityId: text("entity_id"), // ID of the affected entity
+	details: text("details"), // JSON string with additional details
+	ipAddress: text("ip_address"),
+	userAgent: text("user_agent"),
+	createdAt: timestamp("created_at").defaultNow(),
 });
 
 // --- RELATIONS (Để query dễ dàng hơn với Drizzle Query API) ---

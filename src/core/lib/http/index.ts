@@ -84,4 +84,4 @@ httpClient.interceptors.request.use(
 	},
 );
 
-export default httpClient;
+export { httpClient };

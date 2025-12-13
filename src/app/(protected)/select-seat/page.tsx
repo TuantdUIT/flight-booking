@@ -1,21 +1,21 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense, useEffect, useRef } from "react";
 import { Button } from "@/core/components/ui/button";
-import { SeatMap, SelectionSummary } from "@/features/seats/components";
-import { useSeats } from "@/features/seats/hooks/use-seats";
-import { useSeatSelectionStore } from "@/features/seats/store";
 import { useBookingStore } from "@/core/lib/store";
 import type { Seat } from "@/core/types/seat";
+import { useSeats } from "@/features/seats/apis/queries";
+import { SeatMap, SelectionSummary } from "@/features/seats/components";
+import { useSeatSelectionStore } from "@/features/seats/store";
 import {
 	ArrowLeft,
-	Loader2,
-	Users,
-	Clock,
 	Calendar,
+	Clock,
+	Loader2,
 	Plane,
+	Users,
 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 function SelectSeatContent() {

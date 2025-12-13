@@ -19,12 +19,15 @@ export {
 	bookingKeys,
 	useBookingByPnrQuery,
 	useBookingQuery,
-	useBookingsQuery,
+	useBookingsQuery
 } from "./queries";
 
 export {
 	useCancelBookingMutation,
 	useConfirmBookingMutation,
 	useCreateBookingMutation,
-	useUpdateBookingPaymentMutation,
+	useUpdateBookingPaymentMutation
 } from "./mutations";
+
+export * from "./client";
+

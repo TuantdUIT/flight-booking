@@ -3,7 +3,7 @@ import { flightsService } from "@/features/flights/services/flights.service";
 import { flightSearchSchema } from "@/features/flights/validations/flight-search";
 import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
+export async function GET(request: Request) {
 	const requestId = crypto.randomUUID();
 
 	try {
