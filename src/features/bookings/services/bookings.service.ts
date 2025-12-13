@@ -71,6 +71,12 @@ export class BookingsService {
 			const random = Math.random().toString(36).substring(2, 5).toUpperCase();
 			const pnr = `PNR${timestamp}${random}`;
 
+			// Determine payment status based on whether real payment info was provided
+			// If cardholderName is present, it means user went through payment page
+			const isPaid = paymentInfo?.cardholderName ? true : false;
+			const paymentStatus = isPaid ? ("paid" as const) : ("pending" as const);
+			const bookingStatus = isPaid ? ("confirmed" as const) : ("pending" as const);
+
 			// Use database transaction for booking creation
 			const bookingResult = await db.transaction(async (tx) => {
 				// Create booking
@@ -80,8 +86,8 @@ export class BookingsService {
 					airlineId: flight.airlineId,
 					userId: userId,
 					amountPaid: totalAmount.toString(),
-					paymentStatus: "pending" as const,
-					bookingStatus: "pending" as const,
+					paymentStatus: paymentStatus,
+					bookingStatus: bookingStatus,
 				};
 
 				const [newBooking] = await tx

@@ -15,6 +15,7 @@ export const createBookingSchema = z.object({
 		cardNumber: z.string().min(1, { message: "Card number is required" }),
 		expiryDate: z.string().min(1, { message: "Expiry date is required" }),
 		cvv: z.string().min(1, { message: "CVV is required" }),
+		cardholderName: z.string().optional(), // Cardholder name (optional for backward compatibility)
 	}),
 });
 
