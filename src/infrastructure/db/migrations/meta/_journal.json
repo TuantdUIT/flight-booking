@@ -1,76 +1,83 @@
 {
-	"version": "7",
-	"dialect": "postgresql",
-	"entries": [
-		{
-			"idx": 0,
-			"version": "7",
-			"when": 1764663090915,
-			"tag": "0000_sleepy_starbolt",
-			"breakpoints": true
-		},
-		{
-			"idx": 1,
-			"version": "7",
-			"when": 1764665330712,
-			"tag": "0001_furry_invisible_woman",
-			"breakpoints": true
-		},
-		{
-			"idx": 2,
-			"version": "7",
-			"when": 1764665502206,
-			"tag": "0002_minor_silver_fox",
-			"breakpoints": true
-		},
-		{
-			"idx": 3,
-			"version": "7",
-			"when": 1764667077578,
-			"tag": "0003_lethal_talon",
-			"breakpoints": true
-		},
-		{
-			"idx": 4,
-			"version": "7",
-			"when": 1764669394382,
-			"tag": "0004_eager_sentinels",
-			"breakpoints": true
-		},
-		{
-			"idx": 5,
-			"version": "7",
-			"when": 1764677559198,
-			"tag": "0005_gray_supreme_intelligence",
-			"breakpoints": true
-		},
-		{
-			"idx": 6,
-			"version": "7",
-			"when": 1764679474582,
-			"tag": "0006_parched_darkhawk",
-			"breakpoints": true
-		},
-		{
-			"idx": 7,
-			"version": "7",
-			"when": 1764679616342,
-			"tag": "0007_square_pandemic",
-			"breakpoints": true
-		},
-		{
-			"idx": 8,
-			"version": "7",
-			"when": 1764680718341,
-			"tag": "0008_eager_rafael_vega",
-			"breakpoints": true
-		},
-		{
-			"idx": 9,
-			"version": "7",
-			"when": 1764730634846,
-			"tag": "0009_uneven_darwin",
-			"breakpoints": true
-		}
-	]
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1764663090915,
+      "tag": "0000_sleepy_starbolt",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1764665330712,
+      "tag": "0001_furry_invisible_woman",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1764665502206,
+      "tag": "0002_minor_silver_fox",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1764667077578,
+      "tag": "0003_lethal_talon",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1764669394382,
+      "tag": "0004_eager_sentinels",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1764677559198,
+      "tag": "0005_gray_supreme_intelligence",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1764679474582,
+      "tag": "0006_parched_darkhawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1764679616342,
+      "tag": "0007_square_pandemic",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1764680718341,
+      "tag": "0008_eager_rafael_vega",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1764730634846,
+      "tag": "0009_uneven_darwin",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1765545799276,
+      "tag": "0010_glossy_squadron_sinister",
+      "breakpoints": true
+    }
+  ]
 }

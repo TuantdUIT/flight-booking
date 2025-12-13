@@ -57,6 +57,7 @@ export default function SummaryPage() {
 					lastName: p.fullName.split(" ").slice(1).join(" ") || p.fullName,
 					email: p.email,
 					phone: p.phoneNumber,
+					dob: p.dateOfBirth, // Include date of birth
 				})),
 				paymentInfo: {
 					cardNumber: "4111111111111111", // Test card

@@ -133,6 +133,7 @@ export const verification = pgTable("verification", {
 // 9. Booking
 export const bookings = pgTable("booking", {
 	id: serial("id").primaryKey(),
+	pnr: text(),
 	flightId: integer("flight_id").references(() => flights.id),
 	airlineId: integer("airline_id").references(() => airlines.id),
 	userId: text("user_id").references(() => users.id),

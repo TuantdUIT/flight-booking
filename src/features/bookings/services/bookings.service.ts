@@ -52,6 +52,7 @@ export class BookingsService {
 					name: `${passenger.firstName} ${passenger.lastName}`,
 					email: passenger.email,
 					phoneNumber: passenger.phone,
+					dob: passenger.dob || null, // Include date of birth if provided
 				};
 
 				const newPassenger =
@@ -64,16 +65,23 @@ export class BookingsService {
 			const taxes = Number(flight.priceTax) * passengers.length;
 			const totalAmount = baseFare + taxes;
 
+			// Generate PNR (Passenger Name Record)
+			// Format: PNR + timestamp + random string
+			const timestamp = Date.now().toString(36).toUpperCase();
+			const random = Math.random().toString(36).substring(2, 5).toUpperCase();
+			const pnr = `PNR${timestamp}${random}`;
+
 			// Use database transaction for booking creation
 			const bookingResult = await db.transaction(async (tx) => {
 				// Create booking
 				const bookingData = {
+					pnr: pnr,
 					flightId: flight.id,
 					airlineId: flight.airlineId,
 					userId: userId,
 					amountPaid: totalAmount.toString(),
-					paymentStatus: "paid" as const,
-					bookingStatus: "confirmed" as const,
+					paymentStatus: "pending" as const,
+					bookingStatus: "pending" as const,
 				};
 
 				const [newBooking] = await tx
@@ -117,7 +125,7 @@ export class BookingsService {
 
 			return ok({
 				bookingId: bookingResult.id,
-				pnr: `PNR${bookingResult.id.toString().padStart(6, "0")}`,
+				pnr: bookingResult.pnr || pnr,
 				status: bookingResult.bookingStatus as BookingStatus,
 				totalAmount: totalAmount,
 				passengersCount: passengers.length,
