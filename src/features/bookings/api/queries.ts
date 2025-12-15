@@ -7,6 +7,7 @@ export const bookingKeys = {
 	list: (filters: string) => [...bookingKeys.lists(), { filters }] as const,
 	details: () => [...bookingKeys.all, "detail"] as const,
 	detail: (id: number) => [...bookingKeys.details(), id] as const,
+	byPnr: (pnr: string) => [...bookingKeys.details(), "pnr", pnr] as const,
 };
 
 export interface BookingWithDetails {
