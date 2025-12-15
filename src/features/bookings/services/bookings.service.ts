@@ -151,8 +151,72 @@ export class BookingsService {
 
 	async getUserBookings(userId: string): Promise<Result<any[]>> {
 		try {
-			const bookings = await bookingsRepository.findBookingsByUserId(userId);
-			return ok(bookings);
+			const userBookings =
+				await bookingsRepository.findBookingsByUserId(userId);
+
+			// Enrich bookings with flight, airline, and passenger details
+			const enrichedBookings = await Promise.all(
+				userBookings.map(async (booking) => {
+					// Get flight details
+					const flight = booking.flightId
+						? await flightsRepository.findFlightById(booking.flightId)
+						: null;
+
+					// Get airline details
+					const airline =
+						flight && flight.airlineId
+							? await flightsRepository.findAirlineById(flight.airlineId)
+							: null;
+
+					// Get passengers for this booking
+					const bookingPassengerRecords =
+						await bookingsRepository.findBookingPassengersByBookingId(
+							booking.id,
+						);
+
+					const passengers = await Promise.all(
+						bookingPassengerRecords.map(async (bp) => {
+							const passenger = bp.passengerId
+								? await passengersRepository.findPassengerById(bp.passengerId)
+								: null;
+
+							const seat = bp.seatId
+								? await flightsRepository.findSeatById(bp.seatId)
+								: null;
+
+							return {
+								id: passenger?.id || 0,
+								name: passenger?.name || "Unknown",
+								email: passenger?.email || null,
+								phoneNumber: passenger?.phoneNumber || null,
+								seatNumber: seat?.seatNumber || "N/A",
+								eTicketNumber: bp.eTicketNumber || null,
+							};
+						}),
+					);
+
+					return {
+						id: booking.id,
+						pnr: booking.pnr || `PNR${booking.id.toString().padStart(6, "0")}`,
+						bookingStatus: booking.bookingStatus,
+						paymentStatus: booking.paymentStatus,
+						amountPaid: booking.amountPaid || "0",
+						createdAt: booking.createdAt,
+						flight: {
+							id: flight?.id || 0,
+							flightNumber: `${airline?.name || "Unknown"}-${flight?.id || 0}`,
+							airline: airline?.name || "Unknown Airline",
+							origin: flight?.origin || "N/A",
+							destination: flight?.destination || "N/A",
+							date: flight?.date || new Date().toISOString().split("T")[0],
+							time: flight?.time || "00:00",
+						},
+						passengers,
+					};
+				}),
+			);
+
+			return ok(enrichedBookings);
 		} catch (error) {
 			console.error("Error fetching user bookings:", error);
 			return err(errors.internalError("Failed to fetch bookings"));

@@ -71,7 +71,8 @@ export default function BookingManagementPage() {
 			const response = await fetch("/api/admin/bookings");
 			if (response.ok) {
 				const data = await response.json();
-				setBookings(data.bookings || []);
+				console.log(data.data.bookings)
+				setBookings(data?.data?.bookings || []);
 			} else {
 				// Fallback to regular bookings API
 				const response = await fetch("/api/bookings");
@@ -98,7 +99,7 @@ export default function BookingManagementPage() {
 			const response = await fetch(`/api/bookings?search=${encodeURIComponent(searchTerm)}`);
 			if (response.ok) {
 				const data = await response.json();
-				setBookings([]);
+				setBookings(data?.data?.booking);
 			}
 		} catch (error) {
 			toast.error("Search failed");

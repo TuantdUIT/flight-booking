@@ -126,111 +126,121 @@ async function seed() {
 		// Prices in VND: Base range 800k - 3m, Tax fixed or percentage
 		// Dates: 17/12/2025 to 31/12/2025 (format: YYYY-MM-DD)
 		const flightData = [
-			// Vietnam Airlines Flights
-			{
-				airlineId: vnAir.id,
-				origin: "Nội Bài (HAN)",
-				destination: "Tân Sơn Nhất (SGN)",
-				date: "2025-12-17",
-				time: "08:00:00",
-				totalSeats: 160,
-				availableSeats: 160,
-				priceBase: "2500000.00",
-				priceTax: "450000.00",
-			},
-			{
-				airlineId: vnAir.id,
-				origin: "Tân Sơn Nhất (SGN)",
-				destination: "Phú Quốc (PQC)",
-				date: "2025-12-19",
-				time: "10:30:00",
-				totalSeats: 120,
-				availableSeats: 110,
-				priceBase: "1800000.00",
-				priceTax: "350000.00",
-			},
-			// VietJet Air Flights
-			{
-				airlineId: vjAir.id,
-				origin: "Đà Nẵng (DAD)",
-				destination: "Nội Bài (HAN)",
-				date: "2025-12-20",
-				time: "14:15:00",
-				totalSeats: 180,
-				availableSeats: 150,
-				priceBase: "980000.00",
-				priceTax: "320000.00",
-			},
-			{
-				airlineId: vjAir.id,
-				origin: "Tân Sơn Nhất (SGN)",
-				destination: "Cam Ranh (CXR)",
-				date: "2025-12-22",
-				time: "07:45:00",
-				totalSeats: 180,
-				availableSeats: 180,
-				priceBase: "650000.00",
-				priceTax: "280000.00",
-			},
-			// Bamboo Airways Flights
-			{
-				airlineId: bambooAir.id,
-				origin: "Nội Bài (HAN)",
-				destination: "Cát Bi (HPH)",
-				date: "2025-12-24",
-				time: "16:00:00",
-				totalSeats: 100,
-				availableSeats: 90,
-				priceBase: "1200000.00",
-				priceTax: "300000.00",
-			},
-			{
-				airlineId: bambooAir.id,
-				origin: "Phú Quốc (PQC)",
-				destination: "Nội Bài (HAN)",
-				date: "2025-12-26",
-				time: "09:20:00",
-				totalSeats: 150,
-				availableSeats: 120,
-				priceBase: "2100000.00",
-				priceTax: "400000.00",
-			},
-			// Pacific Airlines Flights
-			{
-				airlineId: pacificAir.id,
-				origin: "Tân Sơn Nhất (SGN)",
-				destination: "Đà Nẵng (DAD)",
-				date: "2025-12-28",
-				time: "19:00:00",
-				totalSeats: 180,
-				availableSeats: 175,
-				priceBase: "890000.00",
-				priceTax: "290000.00",
-			},
-			// Additional flights for more coverage
-			{
-				airlineId: vnAir.id,
-				origin: "Tân Sơn Nhất (SGN)",
-				destination: "Nội Bài (HAN)",
-				date: "2025-12-30",
-				time: "06:30:00",
-				totalSeats: 160,
-				availableSeats: 155,
-				priceBase: "2400000.00",
-				priceTax: "420000.00",
-			},
-			{
-				airlineId: vjAir.id,
-				origin: "Nội Bài (HAN)",
-				destination: "Đà Nẵng (DAD)",
-				date: "2025-12-31",
-				time: "11:00:00",
-				totalSeats: 180,
-				availableSeats: 170,
-				priceBase: "1100000.00",
-				priceTax: "300000.00",
-			},
-		];
+		// Vietnam Airlines Flights
+		{
+			airlineId: vnAir.id,
+			origin: "Nội Bài (HAN)",
+			destination: "Tân Sơn Nhất (SGN)",
+			date: "2025-12-17",
+			time: "08:00:00",
+			arrivalTime: "09:30:00", // Estimated arrival time
+			totalSeats: 160,
+			availableSeats: 160,
+			priceBase: "2500000.00",
+			priceTax: "450000.00",
+		},
+		{
+			airlineId: vnAir.id,
+			origin: "Tân Sơn Nhất (SGN)",
+			destination: "Phú Quốc (PQC)",
+			date: "2025-12-19",
+			time: "10:30:00",
+			arrivalTime: "11:30:00", // Estimated arrival time
+			totalSeats: 120,
+			availableSeats: 110,
+			priceBase: "1800000.00",
+			priceTax: "350000.00",
+		},
+		// VietJet Air Flights
+		{
+			airlineId: vjAir.id,
+			origin: "Đà Nẵng (DAD)",
+			destination: "Nội Bài (HAN)",
+			date: "2025-12-20",
+			time: "14:15:00",
+			arrivalTime: "15:45:00", // Estimated arrival time
+			totalSeats: 180,
+			availableSeats: 150,
+			priceBase: "980000.00",
+			priceTax: "320000.00",
+		},
+		{
+			airlineId: vjAir.id,
+			origin: "Tân Sơn Nhất (SGN)",
+			destination: "Cam Ranh (CXR)",
+			date: "2025-12-22",
+			time: "07:45:00",
+			arrivalTime: "08:55:00", // Estimated arrival time
+			totalSeats: 180,
+			availableSeats: 180,
+			priceBase: "650000.00",
+			priceTax: "280000.00",
+		},
+		// Bamboo Airways Flights
+		{
+			airlineId: bambooAir.id,
+			origin: "Nội Bài (HAN)",
+			destination: "Cát Bi (HPH)",
+			date: "2025-12-24",
+			time: "16:00:00",
+			arrivalTime: "17:30:00", // Estimated arrival time
+			totalSeats: 100,
+			availableSeats: 90,
+			priceBase: "1200000.00",
+			priceTax: "300000.00",
+		},
+		{
+			airlineId: bambooAir.id,
+			origin: "Phú Quốc (PQC)",
+			destination: "Nội Bài (HAN)",
+			date: "2025-12-26",
+			time: "09:20:00",
+			arrivalTime: "10:50:00", // Estimated arrival time
+			totalSeats: 150,
+			availableSeats: 120,
+			priceBase: "2100000.00",
+			priceTax: "400000.00",
+		},
+		// Pacific Airlines Flights
+		{
+			airlineId: pacificAir.id,
+			origin: "Tân Sơn Nhất (SGN)",
+			destination: "Đà Nẵng (DAD)",
+			date: "2025-12-28",
+			time: "19:00:00",
+			arrivalTime: "20:30:00", // Estimated arrival time
+			totalSeats: 180,
+			availableSeats: 175,
+			priceBase: "890000.00",
+			priceTax: "290000.00",
+		},
+		// Additional flights for more coverage
+		{
+			airlineId: vnAir.id,
+			origin: "Tân Sơn Nhất (SGN)",
+			destination: "Nội Bài (HAN)",
+			date: "2025-12-30",
+			time: "06:30:00",
+			arrivalTime: "08:00:00", // Estimated arrival time
+			totalSeats: 160,
+			availableSeats: 155,
+			priceBase: "2400000.00",
+			priceTax: "420000.00",
+		},
+		{
+			airlineId: vjAir.id,
+			origin: "Nội Bài (HAN)",
+			destination: "Đà Nẵng (DAD)",
+			date: "2025-12-31",
+			time: "11:00:00",
+			arrivalTime: "12:30:00", // Estimated arrival time
+			totalSeats: 180,
+			availableSeats: 170,
+			priceBase: "1100000.00",
+			priceTax: "300000.00",
+		},
+	];
+
 
 		const createdFlights = await db
 			.insert(flights)

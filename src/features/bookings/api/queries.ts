@@ -1,62 +1,61 @@
 import { httpClient } from "@/core/lib/http";
 import { useQuery } from "@tanstack/react-query";
-import type { BookingSummary } from "../types";
 
-/**
- * Query Keys for Bookings
- */
 export const bookingKeys = {
 	all: ["bookings"] as const,
 	lists: () => [...bookingKeys.all, "list"] as const,
-	list: (filters?: Record<string, unknown>) =>
-		[...bookingKeys.lists(), filters] as const,
+	list: (filters: string) => [...bookingKeys.lists(), { filters }] as const,
 	details: () => [...bookingKeys.all, "detail"] as const,
 	detail: (id: number) => [...bookingKeys.details(), id] as const,
-	byPnr: (pnr: string) => [...bookingKeys.all, "pnr", pnr] as const,
 };
 
-/**
- * Fetch all bookings for the authenticated user
- */
-export function useBookingsQuery() {
+export interface BookingWithDetails {
+	id: number;
+	pnr: string;
+	bookingStatus: "pending" | "confirmed" | "failed";
+	paymentStatus: "pending" | "paid" | "failed";
+	amountPaid: string;
+	createdAt: Date;
+	flight: {
+		id: number;
+		flightNumber: string;
+		airline: string;
+		origin: string;
+		destination: string;
+		date: string;
+		time: string;
+	};
+	passengers: Array<{
+		id: number;
+		name: string;
+		email: string | null;
+		phoneNumber: string | null;
+		seatNumber: string;
+		eTicketNumber: string | null;
+	}>;
+}
+
+export function useUserBookingsQuery() {
 	return useQuery({
 		queryKey: bookingKeys.lists(),
-		queryFn: async (): Promise<BookingSummary[]> => {
-			const bookings = await httpClient.get<BookingSummary[]>("/bookings");
-			return bookings as unknown as BookingSummary[];
+		queryFn: async (): Promise<BookingWithDetails[]> => {
+			const bookings = await httpClient.get<BookingWithDetails[]>("/bookings");
+			return bookings as unknown as BookingWithDetails[];
 		},
-		staleTime: 2 * 60 * 1000, // 2 minutes
+		staleTime: 1 * 60 * 1000, // 1 minute
 	});
 }
 
-/**
- * Fetch a single booking by ID
- */
-export function useBookingQuery(bookingId: number, enabled = true) {
+export function useBookingDetailQuery(bookingId: number, enabled = true) {
 	return useQuery({
 		queryKey: bookingKeys.detail(bookingId),
-		queryFn: async (): Promise<BookingSummary> => {
-			const booking = await httpClient.get<BookingSummary>(
+		queryFn: async (): Promise<BookingWithDetails> => {
+			const booking = await httpClient.get<BookingWithDetails>(
 				`/bookings/${bookingId}`,
 			);
-			return booking as unknown as BookingSummary;
+			return booking as unknown as BookingWithDetails;
 		},
-		enabled: enabled && !!bookingId,
-		staleTime: 5 * 60 * 1000, // 5 minutes
-	});
-}
-
-/**
- * Fetch a booking by PNR (Passenger Name Record)
- */
-export function useBookingByPnrQuery(pnr: string, enabled = true) {
-	return useQuery({
-		queryKey: bookingKeys.byPnr(pnr),
-		queryFn: async (): Promise<BookingSummary> => {
-			const booking = await httpClient.get<BookingSummary>(`/bookings/${pnr}`);
-			return booking as unknown as BookingSummary;
-		},
-		enabled: enabled && !!pnr,
-		staleTime: 5 * 60 * 1000, // 5 minutes
+		enabled,
+		staleTime: 2 * 60 * 1000, // 2 minutes
 	});
 }

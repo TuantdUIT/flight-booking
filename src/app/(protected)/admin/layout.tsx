@@ -1,4 +1,6 @@
+import { auth } from "@/core/lib/auth";
 import { authClient } from "@/core/lib/auth/client";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function AdminLayout({
@@ -7,13 +9,15 @@ export default async function AdminLayout({
 	children: React.ReactNode;
 }) {
 	// Server-side check for admin role using client
-	const session = await authClient.getSession();
+	const session = await auth.api.getSession({
+		headers: await headers()
+	});
 
-	if (!session?.data?.user) {
+	if (!session?.user) {
 		redirect("/auth/signin");
 	}
 
-	if (session.data.user.role !== "admin") {
+	if (session?.user.role !== "admin") {
 		redirect("/");
 	}
 

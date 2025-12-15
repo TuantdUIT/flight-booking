@@ -1,9 +1,17 @@
 "use client";
 
 import { Button } from "@/core/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/core/components/ui/dropdown-menu";
 import { authClient } from "@/core/lib/auth/client";
 import { cn } from "@/core/utils";
-import { LogOut, Menu, Plane, X } from "lucide-react";
+import { ChevronDown, LogOut, Menu, Plane, Shield, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -32,6 +40,11 @@ export function Navbar() {
 
 	const adminLinks = isAdmin
 		? [
+				{ href: "/admin", label: "Dashboard" },
+				{ href: "/admin/bookings", label: "Bookings" },
+				{ href: "/admin/users", label: "Users" },
+				{ href: "/admin/tickets", label: "Tickets" },
+				{ href: "/admin/reports", label: "Reports" },
 				{ href: "/admin/audit", label: "Audit Logs" },
 			]
 		: [];
@@ -64,24 +77,45 @@ export function Navbar() {
 							</Link>
 						))}
 
-						{/* Admin Links */}
+						{/* Admin Dropdown */}
 						{adminLinks.length > 0 && (
 							<>
 								<div className="h-4 w-px bg-border" />
-								{adminLinks.map((link) => (
-									<Link
-										key={link.href}
-										href={link.href}
-										className={cn(
-											"text-sm font-medium transition-colors hover:text-primary",
-											pathname === link.href
-												? "text-primary"
-												: "text-muted-foreground",
-										)}
-									>
-										{link.label}
-									</Link>
-								))}
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button
+											variant="ghost"
+											size="sm"
+											className={cn(
+												"gap-1 text-sm font-medium",
+												pathname.startsWith("/admin")
+													? "text-primary"
+													: "text-muted-foreground",
+											)}
+										>
+											<Shield className="h-4 w-4" />
+											Admin
+											<ChevronDown className="h-3 w-3" />
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end" className="w-48">
+										<DropdownMenuLabel>Admin Actions</DropdownMenuLabel>
+										<DropdownMenuSeparator />
+										{adminLinks.map((link) => (
+											<DropdownMenuItem key={link.href} asChild>
+												<Link
+													href={link.href}
+													className={cn(
+														"cursor-pointer",
+														pathname === link.href && "bg-accent",
+													)}
+												>
+													{link.label}
+												</Link>
+											</DropdownMenuItem>
+										))}
+									</DropdownMenuContent>
+								</DropdownMenu>
 							</>
 						)}
 

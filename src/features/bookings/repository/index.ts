@@ -1,5 +1,5 @@
 import { db } from "@/infrastructure/db/client";
-import { bookingPassengers, bookings } from "@/infrastructure/db/schema";
+import { airlines, bookingPassengers, bookings, flights, users } from "@/infrastructure/db/schema";
 import { atomic } from "@/infrastructure/db/wrapper";
 import { eq, sql } from "drizzle-orm";
 
@@ -174,22 +174,22 @@ export const bookingsRepository = {
 				createdAt: bookings.createdAt,
 				updatedAt: bookings.updatedAt,
 				// User details
-				userEmail: sql<string>`users.email`,
-				userName: sql<string>`users.name`,
+				userEmail: users.email,
+				userName: users.name,
 				// Flight details
-				flightNumber: sql<string>`CONCAT(airlines.name, '-', flights.id)`,
-				airlineName: sql<string>`airlines.name`,
-				origin: sql<string>`flights.origin`,
-				destination: sql<string>`flights.destination`,
-				flightDate: sql<Date>`flights.date`,
+				flightNumber: sql<string>`CONCAT(${airlines.name}, '-', ${flights.id})`,
+				airlineName: airlines.name,
+				origin: flights.origin,
+				destination: flights.destination,
+				flightDate: flights.date,
 				// Passenger count
-				passengerCount: sql<number>`COUNT(booking_passengers.passenger_id)`,
+				passengerCount: sql<number>`COUNT(${bookingPassengers.passengerId})`,
 			})
 			.from(bookings)
-			.leftJoin(sql`users`, eq(bookings.userId, sql`users.id`))
-			.leftJoin(sql`flights`, eq(bookings.flightId, sql`flights.id`))
-			.leftJoin(sql`airlines`, eq(bookings.airlineId, sql`airlines.id`))
-			.leftJoin(sql`booking_passengers`, eq(bookings.id, sql`booking_passengers.booking_id`))
+			.leftJoin(users, eq(bookings.userId, users.id))
+			.leftJoin(flights, eq(bookings.flightId, flights.id))
+			.leftJoin(airlines, eq(bookings.airlineId, airlines.id))
+			.leftJoin(bookingPassengers, eq(bookings.id, bookingPassengers.bookingId))
 			.groupBy(
 				bookings.id,
 				bookings.pnr,
@@ -201,12 +201,13 @@ export const bookingsRepository = {
 				bookings.airlineId,
 				bookings.createdAt,
 				bookings.updatedAt,
-				sql`users.email`,
-				sql`users.name`,
-				sql`flights.origin`,
-				sql`flights.destination`,
-				sql`flights.date`,
-				sql`airlines.name`
+				users.email,
+				users.name,
+				flights.id,
+				flights.origin,
+				flights.destination,
+				flights.date,
+				airlines.name
 			)
 			.orderBy(bookings.createdAt)
 			.limit(limit)
