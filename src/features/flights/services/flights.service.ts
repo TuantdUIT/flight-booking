@@ -11,6 +11,7 @@ export type FlightWithAirline = {
 	destination: string;
 	date: string;
 	time: string;
+	arrivalTime: string;
 	totalSeats: number;
 	availableSeats: number;
 	priceBase: string;
@@ -92,6 +93,7 @@ export const flightsService = {
 						destination: flight.destination,
 						date: flight.date,
 						time: flight.time,
+						arrivalTime: flight.arrivalTime,
 						totalSeats: flight.totalSeats,
 						availableSeats: flight.availableSeats,
 						priceBase: flight.priceBase,

@@ -1,0 +1,1 @@
+ALTER TABLE "flight" ADD COLUMN "arrival_time" time NOT NULL;

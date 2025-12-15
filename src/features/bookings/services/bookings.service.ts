@@ -210,6 +210,7 @@ export class BookingsService {
 							destination: flight?.destination || "N/A",
 							date: flight?.date || new Date().toISOString().split("T")[0],
 							time: flight?.time || "00:00",
+							arrivalTime: flight?.arrivalTime || "00:00",
 						},
 						passengers,
 					};

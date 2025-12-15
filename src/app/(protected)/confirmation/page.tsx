@@ -115,35 +115,28 @@ export default function ConfirmationPage() {
 							</div>
 
 							<div className="border-t pt-4 space-y-4">
-								{/* Route Information */}
-								<div className="flex justify-center items-center gap-12">
-									{/* Origin */}
-									<div className="text-center">
+								{/* Route Information - Symmetric Layout */}
+								<div className="flex justify-between items-center gap-4">
+									{/* Origin - Left Side */}
+									<div className="flex-1 text-center">
 										<p className="text-xs text-muted-foreground mb-2">From</p>
+										<p className="text-2xl font-bold text-foreground mb-1">
+											{currentBooking.flight.time}
+										</p>
 										<p className="text-sm font-medium text-foreground">
 											{currentBooking.flight.origin}
 										</p>
 									</div>
 
-									{/* Flight Path - Centered */}
-									<div className="flex flex-col items-center">
-										{/* Departure Time - Centered above plane */}
-										<div className="text-center mb-3">
-											<span className="text-2xl font-bold text-foreground">
-												{currentBooking.flight.departureTime}
-											</span>
-										</div>
-
-										{/* Plane Icon and Path */}
+									{/* Flight Path - Center */}
+									<div className="flex flex-col items-center px-4">
 										<div className="relative flex items-center">
-											<div className="w-32 border-t-2 border-dashed border-muted-foreground/40"></div>
+											<div className="w-24 sm:w-32 border-t-2 border-dashed border-muted-foreground/40" />
 											<div className="absolute left-1/2 -translate-x-1/2">
 												<Plane className="w-6 h-6 text-primary rotate-90" />
 											</div>
 										</div>
-
-										{/* Direct Label */}
-										<div className="flex items-center gap-1 mt-3">
+										<div className="flex items-center gap-1 mt-2">
 											<Clock className="w-3 h-3 text-muted-foreground" />
 											<span className="text-xs text-muted-foreground">
 												Direct
@@ -151,9 +144,12 @@ export default function ConfirmationPage() {
 										</div>
 									</div>
 
-									{/* Destination */}
-									<div className="text-center">
+									{/* Destination - Right Side */}
+									<div className="flex-1 text-center">
 										<p className="text-xs text-muted-foreground mb-2">To</p>
+										<p className="text-2xl font-bold text-foreground mb-1">
+											{currentBooking.flight.arrivalTime || "—"}
+										</p>
 										<p className="text-sm font-medium text-foreground">
 											{currentBooking.flight.destination}
 										</p>
@@ -216,12 +212,12 @@ export default function ConfirmationPage() {
 												</p>
 											</div>
 										</div>
-										<div className="text-right">
+										{/* <div className="text-right">
 											<p className="text-xs text-muted-foreground mb-1">E-Ticket</p>
 											<p className="font-mono text-sm font-bold text-primary">
 												{passenger.eTicketNumber ? formatETicket(passenger.eTicketNumber) : 'Pending'}
 											</p>
-										</div>
+										</div> */}
 									</div>
 									<div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3 text-sm">
 										<div className="flex items-center gap-2 text-muted-foreground">

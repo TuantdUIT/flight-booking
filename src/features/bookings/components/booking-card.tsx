@@ -81,8 +81,9 @@ export function BookingCard({ booking }: BookingCardProps) {
 						</div>
 					</div>
 
-					{/* Middle Section - Route */}
+					{/* Middle Section - Route (Symmetric) */}
 					<div className="flex items-center gap-4 lg:gap-6">
+						{/* Origin - Left */}
 						<div className="text-center">
 							<p className="text-lg font-bold text-foreground">
 								{booking.flight.time}
@@ -93,14 +94,18 @@ export function BookingCard({ booking }: BookingCardProps) {
 							</div>
 						</div>
 
+						{/* Flight Path - Center */}
 						<div className="flex flex-col items-center">
 							<Clock className="h-4 w-4 text-muted-foreground" />
 							<div className="h-px w-16 bg-border my-1" />
 							<Plane className="h-4 w-4 text-muted-foreground rotate-90" />
 						</div>
 
+						{/* Destination - Right */}
 						<div className="text-center">
-							<p className="text-lg font-bold text-foreground">—</p>
+							<p className="text-lg font-bold text-foreground">
+								{booking.flight.arrivalTime}
+							</p>
 							<div className="flex items-center gap-1 text-sm text-muted-foreground">
 								<MapPin className="h-3 w-3" />
 								<span>{booking.flight.destination}</span>

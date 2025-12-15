@@ -33,26 +33,29 @@ export function FlightCard({ flight, onSelect, isSelected }: FlightCardProps) {
 					</div>
 				</div>
 
-				<div className="flex flex-1 items-center justify-center">
-					{/* Origin - right aligned */}
-					<div className="flex-1 text-right pr-4">
+				<div className="flex flex-1 items-center justify-center gap-4">
+					{/* Origin - Left Side */}
+					<div className="flex-1 text-center">
+						<p className="text-2xl font-bold text-foreground mb-1">
+							{flight.time}
+						</p>
 						<p className="text-sm text-muted-foreground">{flight.origin}</p>
 					</div>
 
-					{/* Center - Time and Flight path indicator */}
-					<div className="flex flex-col items-center px-6 min-w-[140px]">
-						<p className="text-2xl font-bold text-foreground mb-2">
-							{flight.time}
-						</p>
-						<div className="relative w-full my-2">
-							<div className="w-full border-t border-dashed border-muted-foreground/40" />
+					{/* Center - Flight path indicator */}
+					<div className="flex flex-col items-center px-4">
+						<div className="relative w-24">
+							<div className="w-full border-t-2 border-dashed border-muted-foreground/40" />
 							<Plane className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rotate-90 text-primary" />
 						</div>
-						<p className="text-xs text-muted-foreground">Direct</p>
+						<p className="text-xs text-muted-foreground mt-2">Direct</p>
 					</div>
 
-					{/* Destination - left aligned */}
-					<div className="flex-1 text-left pl-4">
+					{/* Destination - Right Side */}
+					<div className="flex-1 text-center">
+						<p className="text-2xl font-bold text-foreground mb-1">
+							{flight.arrivalTime}
+						</p>
 						<p className="text-sm text-muted-foreground">
 							{flight.destination}
 						</p>

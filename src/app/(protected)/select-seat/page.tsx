@@ -179,43 +179,39 @@ function SelectSeatContent() {
 								</div>
 							</div>
 
-							{/* Route Information */}
-							<div className="flex items-center justify-center gap-12">
-								{/* Origin */}
+							{/* Route Information - Symmetric */}
+							<div className="flex items-center justify-center gap-8">
+								{/* Origin - Left */}
 								<div className="text-center">
 									<p className="text-xs text-gray-500 mb-2">From</p>
+									<p className="text-2xl font-bold text-gray-900 mb-1">
+										{selectedFlight.time}
+									</p>
 									<p className="text-sm font-medium text-gray-700">
 										{selectedFlight.origin}
 									</p>
 								</div>
 
-								{/* Flight Path - Centered */}
-								<div className="flex flex-col items-center">
-									{/* Departure Time - Centered above plane */}
-									<div className="text-center mb-3">
-										<span className="text-2xl font-bold text-gray-900">
-											{selectedFlight.time}
-										</span>
-									</div>
-
-									{/* Plane Icon and Path */}
+								{/* Flight Path - Center */}
+								<div className="flex flex-col items-center px-4">
 									<div className="relative flex items-center">
-										<div className="w-32 border-t-2 border-dashed border-gray-300"></div>
+										<div className="w-24 border-t-2 border-dashed border-gray-300" />
 										<div className="absolute left-1/2 -translate-x-1/2">
 											<Plane className="w-6 h-6 text-blue-600 rotate-90" />
 										</div>
 									</div>
-
-									{/* Direct Label */}
-									<div className="flex items-center gap-1 mt-3">
+									<div className="flex items-center gap-1 mt-2">
 										<Clock className="w-3 h-3 text-gray-400" />
 										<span className="text-xs text-gray-500">Direct</span>
 									</div>
 								</div>
 
-								{/* Destination */}
+								{/* Destination - Right */}
 								<div className="text-center">
 									<p className="text-xs text-gray-500 mb-2">To</p>
+									<p className="text-2xl font-bold text-gray-900 mb-1">
+										{selectedFlight.arrivalTime}
+									</p>
 									<p className="text-sm font-medium text-gray-700">
 										{selectedFlight.destination}
 									</p>

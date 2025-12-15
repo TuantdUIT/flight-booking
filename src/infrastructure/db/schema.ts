@@ -43,7 +43,8 @@ export const flights = pgTable("flight", {
 	origin: text("origin").notNull(),
 	destination: text("destination").notNull(),
 	date: date("date").notNull(),
-	time: time("time").notNull(), // Lưu ý: PostgreSQL time type
+	time: time("time").notNull(), // Departure time
+	arrivalTime: time("arrival_time").notNull(), // Arrival time
 	totalSeats: integer("total_seats").notNull(),
 	availableSeats: integer("available_seats").notNull(),
 	priceBase: decimal("price_base", { precision: 10, scale: 2 }).notNull(),

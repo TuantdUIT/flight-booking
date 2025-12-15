@@ -25,6 +25,7 @@ export interface BookingWithDetails {
 		destination: string;
 		date: string;
 		time: string;
+		arrivalTime: string;
 	};
 	passengers: Array<{
 		id: number;
