@@ -7,8 +7,18 @@ export async function GET(request: Request) {
 	const requestId = crypto.randomUUID();
 
 	try {
-		const body = await request.json();
-		const parseResult = flightSearchSchema.safeParse(body);
+		// Extract search params from URL query string
+		const { searchParams } = new URL(request.url);
+		
+		const searchData = {
+			origin: searchParams.get("origin") || "",
+			destination: searchParams.get("destination") || "",
+			departureDate: searchParams.get("departureDate") || "",
+			passengers: Number(searchParams.get("passengers")) || 0,
+		};
+
+		// Validate with flightSearchSchema
+		const parseResult = flightSearchSchema.safeParse(searchData);
 
 		if (!parseResult.success) {
 			const response = toJsonResponse(
@@ -29,6 +39,7 @@ export async function GET(request: Request) {
 
 		const result = await flightsService.searchFlights(parseResult.data);
 		const response = toJsonResponse(result, { requestId });
+		console.log(result)
 
 		return new NextResponse(response.body, {
 			status: response.status,

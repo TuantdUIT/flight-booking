@@ -116,7 +116,7 @@ export default function PaymentPage() {
 		try {
 			// Prepare booking data with real payment information
 			const bookingData = {
-				flightId: selectedFlight.id,
+				flightId: String(selectedFlight.id),
 				passengers: passengers.map((p) => ({
 					firstName: p.fullName.split(" ")[0] || p.fullName,
 					lastName: p.fullName.split(" ").slice(1).join(" ") || p.fullName,
@@ -139,10 +139,11 @@ export default function PaymentPage() {
 			toast.success(`Payment successful! PNR: ${result.pnr}`);
 
 			// Calculate total for display
-			const baseFare = selectedFlight.price * searchParams.passengers;
-			const taxes = Math.round(baseFare * 0.12);
-			const serviceFee = 15;
-			const total = baseFare + taxes + serviceFee;
+			const priceBase = Number.parseFloat(selectedFlight.priceBase);
+			const priceTax = Number.parseFloat(selectedFlight.priceTax);
+			const baseFare = priceBase * searchParams.passengers;
+			const taxes = priceTax * searchParams.passengers;
+			const total = baseFare + taxes;
 
 			// Create booking object for confirmation page
 			const booking = {

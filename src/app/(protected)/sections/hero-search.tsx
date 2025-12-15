@@ -5,7 +5,8 @@ import { DateInput } from "@/core/components/ui/date-input";
 import { LoadingSpinner } from "@/core/components/ui/loading-spinner";
 import { SelectField } from "@/core/components/ui/select-field";
 
-import type { Flight, SearchParams } from "@/core/types";
+import type { SearchParams } from "@/core/types";
+import { useSearchFlightsQuery } from "@/features/flights/api/queries";
 import { flightSearchSchema } from "@/features/flights/validations/flight-search";
 import { MapPin, Search, Users } from "lucide-react";
 import type * as React from "react";
@@ -21,9 +22,8 @@ interface SearchErrors {
 interface HeroSearchProps {
 	airportOptions: Array<{ value: string; label: string }>;
 	passengerOptions: Array<{ value: string; label: string }>;
-	flightsData: Flight[];
 	setSearchParams: (params: SearchParams) => void;
-	setSearchResults: (results: Flight[]) => void;
+	setSearchResults: (results: any[]) => void;
 	setHasSearched: (searched: boolean) => void;
 	setIsSearching: (searching: boolean) => void;
 }
@@ -31,7 +31,6 @@ interface HeroSearchProps {
 export function HeroSearch({
 	airportOptions,
 	passengerOptions,
-	flightsData,
 	setSearchParams,
 	setSearchResults,
 	setHasSearched,
@@ -45,7 +44,8 @@ export function HeroSearch({
 	});
 	const [errors, setErrors] = useState<SearchErrors>({});
 
-	const [isSearchingState, setIsSearchingState] = useState(false);
+	// Use the search flights query hook
+	const { refetch, isFetching } = useSearchFlightsQuery(searchForm, false);
 
 	const validateSearch = (): boolean => {
 		const result = flightSearchSchema.safeParse(searchForm);
@@ -68,48 +68,21 @@ export function HeroSearch({
 		e.preventDefault();
 		if (!validateSearch()) return;
 
-		setIsSearchingState(true);
 		propSetIsSearching(true);
 		setHasSearched(false);
 
 		try {
-			// Call the real search API
-			const response = await fetch("/api/flights/search", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(searchForm),
-			});
-
-			const result = await response.json();
-
-			if (result.success && result.data) {
-				// Map API response to Flight type
-				const flights: Flight[] = result.data.map((flight: any) => ({
-					id: String(flight.id),
-					flightNumber: flight.flightNumber,
-					airline: flight.airline,
-					origin: flight.origin,
-					destination: flight.destination,
-					departureTime: flight.time,
-					arrivalTime: "", // Calculate if needed
-					duration: "", // Calculate if needed
-					price: Number(flight.priceBase),
-					seatsRemaining: flight.availableSeats,
-				}));
-
-				setSearchParams(searchForm);
-				setSearchResults(flights);
-			} else {
-				setSearchResults([]);
-			}
+			const { data } = await refetch();
+			setSearchParams(searchForm);
+			setSearchResults(data || []);
+			setHasSearched(true);
 		} catch (error) {
 			console.error("Search failed:", error);
 			setSearchResults([]);
+			setHasSearched(true);
+		} finally {
+			propSetIsSearching(false);
 		}
-
-		setHasSearched(true);
-		setIsSearchingState(false);
-		propSetIsSearching(false);
 	};
 
 	return (
@@ -189,9 +162,9 @@ export function HeroSearch({
 							type="submit"
 							size="lg"
 							className="w-full md:w-auto md:px-12"
-							disabled={isSearchingState}
+							disabled={isFetching}
 						>
-							{isSearchingState ? (
+							{isFetching ? (
 								<LoadingSpinner size="sm" />
 							) : (
 								<>

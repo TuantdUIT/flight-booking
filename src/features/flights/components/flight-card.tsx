@@ -2,7 +2,7 @@
 
 import type { Flight } from "@/core/types";
 import { cn } from "@/core/utils";
-import { Plane, Clock, Users } from "lucide-react";
+import { Plane, Users } from "lucide-react";
 import { Button } from "@/core/components/ui/button";
 
 interface FlightCardProps {
@@ -12,6 +12,7 @@ interface FlightCardProps {
 }
 
 export function FlightCard({ flight, onSelect, isSelected }: FlightCardProps) {
+	console.log(flight)
 	return (
 		<div
 			className={cn(
@@ -41,7 +42,7 @@ export function FlightCard({ flight, onSelect, isSelected }: FlightCardProps) {
 					{/* Center - Time and Flight path indicator */}
 					<div className="flex flex-col items-center px-6 min-w-[140px]">
 						<p className="text-2xl font-bold text-foreground mb-2">
-							{flight.departureTime}
+							{flight.time}
 						</p>
 						<div className="relative w-full my-2">
 							<div className="w-full border-t border-dashed border-muted-foreground/40" />
@@ -61,7 +62,7 @@ export function FlightCard({ flight, onSelect, isSelected }: FlightCardProps) {
 				<div className="flex flex-col items-end gap-2">
 					<div className="text-right">
 						<p className="text-2xl font-bold text-foreground">
-							{new Intl.NumberFormat("vi-VN").format(flight.price)} ₫
+							{new Intl.NumberFormat("vi-VN").format(Number.parseFloat(flight.priceBase))} ₫
 						</p>
 						<p className="text-sm text-muted-foreground">per person</p>
 					</div>
@@ -69,12 +70,12 @@ export function FlightCard({ flight, onSelect, isSelected }: FlightCardProps) {
 						<Users className="h-4 w-4" />
 						<span
 							className={cn(
-								flight.seatsRemaining <= 5
+								flight.availableSeats <= 5
 									? "text-destructive font-medium"
 									: "text-muted-foreground",
 							)}
 						>
-							{flight.seatsRemaining} seats left
+							{flight.availableSeats} seats left
 						</span>
 					</div>
 					<Button

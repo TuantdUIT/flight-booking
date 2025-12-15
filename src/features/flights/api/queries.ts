@@ -1,5 +1,5 @@
 import { httpClient } from "@/core/lib/http";
-import type { Flight } from "@/core/types";
+import type { Flight, SearchParams } from "@/core/types";
 import { useQuery } from "@tanstack/react-query";
 
 export function useAirportsQuery() {
@@ -26,3 +26,23 @@ export function useFlightsQuery() {
 		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
 }
+
+export function useSearchFlightsQuery(searchParams: SearchParams, enabled = false) {
+	return useQuery({
+		queryKey: ["flights", "search", searchParams],
+		queryFn: async (): Promise<Flight[]> => {
+			const params = new URLSearchParams({
+				origin: searchParams.origin,
+				destination: searchParams.destination,
+				departureDate: searchParams.departureDate,
+				passengers: String(searchParams.passengers),
+			});
+			
+			const flights = await httpClient.get<Flight[]>(`/flights/search?${params.toString()}`);
+			return flights as unknown as Flight[];
+		},
+		enabled, // Only run when explicitly enabled
+		staleTime: 2 * 60 * 1000, // 2 minutes (shorter for search results)
+	});
+}
+

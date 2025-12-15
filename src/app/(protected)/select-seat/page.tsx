@@ -194,7 +194,7 @@ function SelectSeatContent() {
 									{/* Departure Time - Centered above plane */}
 									<div className="text-center mb-3">
 										<span className="text-2xl font-bold text-gray-900">
-											{selectedFlight.departureTime}
+											{selectedFlight.time}
 										</span>
 									</div>
 

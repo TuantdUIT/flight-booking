@@ -92,6 +92,8 @@ export const auth = betterAuth({
 	advanced: {
 		database: {
 			generateId: false,
+			disableCSRFCheck: true,
+			disableOriginCheck: true
 		},
 	},
 });

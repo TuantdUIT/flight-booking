@@ -19,8 +19,10 @@ export function PriceBreakdownCard({
 	passengerCount,
 	className,
 }: PriceBreakdownCardProps) {
-	const baseFare = flight.price * passengerCount;
-	const taxes = Math.round(baseFare * 0.12);
+	const priceBase = Number.parseFloat(flight.priceBase);
+	const priceTax = Number.parseFloat(flight.priceTax);
+	const baseFare = priceBase * passengerCount;
+	const taxes = priceTax * passengerCount;
 	const total = baseFare + taxes;
 
 	return (
@@ -32,7 +34,7 @@ export function PriceBreakdownCard({
 			<div className="space-y-3">
 				<div className="flex justify-between text-sm">
 					<span className="text-muted-foreground">
-						Base fare ({passengerCount} × {formatVND(flight.price)} ₫)
+						Base fare ({passengerCount} × {formatVND(priceBase)} ₫)
 					</span>
 					<span className="font-medium text-foreground">
 						{formatVND(baseFare)} ₫

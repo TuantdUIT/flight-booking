@@ -2,10 +2,7 @@
 
 import { useBookingStore } from "@/core/lib/store";
 import type { Flight } from "@/core/types";
-import {
-	useAirportsQuery,
-	useFlightsQuery,
-} from "@/features/flights/api/queries";
+import { useAirportsQuery } from "@/features/flights/api/queries";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -21,7 +18,6 @@ export default function HomePage() {
 	const [searchResults, setSearchResults] = useState<Flight[]>([]);
 	const [hasSearched, setHasSearched] = useState(false);
 	const { data: airportsData = [] } = useAirportsQuery();
-	const { data: flightsData = [] } = useFlightsQuery();
 
 	const airportOptions = [
 		{ value: "", label: "Select airport" },
@@ -46,7 +42,6 @@ export default function HomePage() {
 			<HeroSearch
 				airportOptions={airportOptions}
 				passengerOptions={passengerOptions}
-				flightsData={flightsData}
 				setSearchParams={setSearchParams}
 				setSearchResults={setSearchResults}
 				setHasSearched={setHasSearched}
