@@ -123,6 +123,8 @@ export default function PaymentPage() {
 					email: p.email,
 					phone: p.phoneNumber,
 					dob: p.dateOfBirth,
+					nationality: p.nationality,
+					passport: p.passportNumber,
 				})),
 				paymentInfo: {
 					cardNumber: form.cardNumber.replace(/\s/g, ""), // Remove spaces

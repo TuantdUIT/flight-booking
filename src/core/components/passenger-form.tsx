@@ -23,7 +23,10 @@ const nationalities = [
 	{ value: "Japan", label: "Japan" },
 	{ value: "China", label: "China" },
 	{ value: "India", label: "India" },
-	{ value: "Brazil", label: "Brazil" },
+	{ value: "Vietnam", label: "Vietnam" },
+	{ value: "Laos", label: "Laos" },
+	{ value: "Campuchia", label: "Campuchia" },
+	{ value: "Thailand", label: "Thailand" },
 	{ value: "Other", label: "Other" },
 ];
 

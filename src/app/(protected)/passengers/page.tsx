@@ -48,7 +48,7 @@ export default function PassengersPage() {
 
 		if (!passenger.fullName.trim()) {
 			errs.fullName = "Full name is required";
-		} else if (!/^[a-zA-Z\s]+$/.test(passenger.fullName)) {
+		} else if (!/^[\p{L}\s]+$/u.test(passenger.fullName)) {
 			errs.fullName = "Name must contain only letters and spaces";
 		}
 
@@ -204,7 +204,7 @@ export default function PassengersPage() {
 												{/* Departure Time - Centered above plane */}
 												<div className="text-center mb-3">
 													<span className="text-2xl font-bold text-foreground">
-														{selectedFlight.departureTime}
+														{selectedFlight.time}
 													</span>
 												</div>
 
