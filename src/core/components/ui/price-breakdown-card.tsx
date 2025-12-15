@@ -42,7 +42,7 @@ export function PriceBreakdownCard({
 				</div>
 
 				<div className="flex justify-between text-sm">
-					<span className="text-muted-foreground">Taxes & fees (12%)</span>
+					<span className="text-muted-foreground">Taxes</span>
 					<span className="font-medium text-foreground">
 						{formatVND(taxes)} ₫
 					</span>
